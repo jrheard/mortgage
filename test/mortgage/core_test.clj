@@ -1,14 +1,18 @@
 (ns mortgage.core-test
   (:require [clojure.test :refer :all]
-            [mortgage.core :refer :all]))
+            [mortgage.core :refer :all]
+            [schema.core :as s]
+            [schema.test]))
 
-(deftest a-test
-  (testing "FIXME, I fail."
-    (is (= 1 1))))
+(use-fixtures :once schema.test/validate-schemas)
 
-(deftest blat
-  (is (= 1 1))
+(deftest making-mortgage
+  (testing "happy path"
+    (is (= (make-mortgage 500000 0.035 0.15)
+           {:house-price             500000
+            :apr                     0.035
+            :down-payment-percentage 0.15})))
 
-  (let [foo (fn [a] (+ a 10))]
-    (is (= (foo 1)
-           11))))
+  (testing "garbage input"
+    (is (thrown? Exception
+                 (make-mortgage "foo" "bar" "baz")))))
