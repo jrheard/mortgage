@@ -1,9 +1,5 @@
-(ns mortgage.core)
-
-(defn -main
-  "I don't do a whole lot ... yet."
-  [& args]
-  (println "Hello, World!"))
+(ns mortgage.core
+  (:require [schema.core :as s]))
 
 ; paredit
 ; cmd+shift+j, cmd+shift+k - move right paren back/forth
@@ -49,34 +45,22 @@
 ; cmd-t: run tests in current ns
 ; cmd-shift-t: run test under caret
 
+(s/defschema Mortgage
+  {:house-price             s/Int
+   :apr                     s/Num
+   :down-payment-percentage s/Num})
 
-(def abc 123)
+(s/defn get-loan-amount :- s/Int
+  [mortgage :- Mortgage]
+  (- (:house-price mortgage)
+     (* (:house-price mortgage)
+        (- 1
+           (:down-payment-percentage mortgage)))))
 
-(defn thing
-  [foo]
-  (+ 2 1 foo))
-
-(defn another-thing
-               [some-input]
-  (let [blat (thing some-input)]
-    (+ 123 blat)))
-
-(another-thing 123)
-
-;(prn (thing 6))
-
-(+ 123 234)
+(def foo {:house-price             500000
+          :apr                     0.035
+          :down-payment-percentage 0.15})
 
 (comment
+  (get-loan-amount foo))
 
-  (kalfwejklfeaae bar baz)
-
-  (apply str (take 50 (slurp "http://www.yelp.com")))
-
-  (thing 6)
-
-  (+ abc 99999))
-
-
-
-; TODO - repl has a clj/cljs toggle if you mouse over the >> bit - what's going on there?
