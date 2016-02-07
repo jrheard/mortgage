@@ -43,6 +43,12 @@
 ; f7: step into
 ; shif-f8:  step out
 
+; per https://smartasset.com/taxes/oregon-property-tax-calculator#7KnveUIptd
+(def multnomah-county-property-tax-rate 0.01123)
+
+; per http://www.valuepenguin.com/average-cost-of-homeowners-insurance
+(def average-monthly-homeowners-insurance-payment 47.98)
+
 (s/defschema Mortgage
   {:house-price             s/Int
    :apr                     s/Num
@@ -58,10 +64,8 @@
 
 (s/defn get-down-payment :- s/Num
   [m :- Mortgage]
-  (- (:house-price m)
-     (* (:house-price m)
-        (- 1
-           (:down-payment-percentage m)))))
+  (* (:house-price m)
+     (:down-payment-percentage m)))
 
 (s/defn get-loan-amount :- s/Num
   [m :- Mortgage]
@@ -90,14 +94,11 @@
      (* (:num-years m)
         12)))
 
+;(s/defn total-monthly-payment)
+
 (def foo (make-mortgage 500000 0.0325 0.2 30))
 
 (comment
-  (get-loan-amount foo)
-  (is-jumbo-loan foo)
-
-  (s/fn-schema get-loan-amount)
-  (s/fn-schema make-mortgage)
 
   (base-monthly-payment foo)
   (total-mortgage-price foo)
