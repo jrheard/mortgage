@@ -4,4 +4,11 @@
 
 (deftest a-test
   (testing "FIXME, I fail."
-    (is (= 0 1))))
+    (is (= 1 1))))
+
+(deftest blat
+  (is (= 1 1))
+
+  (let [foo (fn [a] (+ a 10))]
+    (is (= (foo 1)
+           11))))

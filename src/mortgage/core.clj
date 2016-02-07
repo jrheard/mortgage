@@ -5,8 +5,7 @@
   [& args]
   (println "Hello, World!"))
 
-; ok so
-; paredit keys to remember / try out:
+; paredit
 ; cmd+shift+j, cmd+shift+k - move right paren back/forth
 ; cmd+ctrl+j, cmd+ctrl+k - move left paren back/forth
 ; cmd-shift-9 wraps with ()
@@ -18,13 +17,13 @@
 ; repl commands
 ; cmd-shift-l sends file to repl (equivalent of cpr in fireplace)
 ; cmd-shift-p sends current form to repl (equivalent of cpp in fireplace)
-;
-; assorted intellij commands
-; esc: focus editor window (as opposed to eg repl, project, etc)
 ; cmd-alt-e: view repl history
 ;
-; documentation+etc
+; documentation
 ; cmd-p: show parameters this function takes
+; ctrl-j: show docstring
+; cmd-y: view source of function
+; cmd-alt-l: reformat code
 ;
 ; navigation
 ; cmd-alt-f7: show usages
@@ -41,10 +40,14 @@
 ;
 ; debugging
 ; alt-f8: toggle breakpoint
-; ctrl-d - run program in debug mode
-; f8 - step over
-; f8 - step into
-; shift-f8 - step out
+; ctrl-d: run program in debug mode
+; f8: step over
+; f7: step into
+; shif-f8:  step out
+;
+; testing
+; cmd-t: run tests in current ns
+; cmd-shift-t: run test under caret
 
 
 (def abc 123)
