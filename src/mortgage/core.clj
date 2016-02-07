@@ -18,7 +18,6 @@
 ; documentation
 ; cmd-p: show parameters this function takes
 ; ctrl-j: show docstring
-; cmd-y: view source of function
 ; cmd-alt-l: reformat code
 ;
 ; navigation
@@ -50,17 +49,35 @@
    :apr                     s/Num
    :down-payment-percentage s/Num})
 
-(s/defn get-loan-amount :- s/Int
-  [mortgage :- Mortgage]
-  (- (:house-price mortgage)
-     (* (:house-price mortgage)
-        (- 1
-           (:down-payment-percentage mortgage)))))
+(s/defn make-mortgage :- Mortgage
+  [house-price apr down-payment-percentage]
+  {:house-price             house-price
+   :apr                     apr
+   :down-payment-percentage down-payment-percentage})
 
-(def foo {:house-price             500000
-          :apr                     0.035
-          :down-payment-percentage 0.15})
+(s/defn get-down-payment :- s/Int
+  [m :- Mortgage]
+  (- (:house-price m)
+     (* (:house-price m)
+        (- 1
+           (:down-payment-percentage m)))))
+
+(s/defn get-loan-amount :- s/Int
+  [m :- Mortgage]
+  (- (:house-price m)
+     (get-down-payment m)))
+
+(s/defn is-jumbo-loan :- s/Bool
+  [m :- Mortgage]
+  (> (get-loan-amount m)
+     417000))
+
+(def foo (make-mortgage 500000 0.035 0.15))
 
 (comment
-  (get-loan-amount foo))
+  (get-loan-amount foo)
+  (is-jumbo-loan foo)
 
+  (s/fn-schema get-loan-amount)
+  (s/fn-schema make-mortgage)
+  )
