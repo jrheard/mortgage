@@ -77,6 +77,7 @@
   (> (get-loan-amount m)
      417000))
 
+; per http://www.calcunation.com/calculator/mortgage-total-cost.php
 (s/defn total-mortgage-price :- s/Num
   [m :- Mortgage]
   (let [r (/ (:apr m) 12)
@@ -94,13 +95,20 @@
      (* (:num-years m)
         12)))
 
-;(s/defn total-monthly-payment)
+(s/defn total-monthly-payment :- s/Num
+  [m :- Mortgage]
+  (let [property-tax (* multnomah-county-property-tax-rate
+                        (:house-price m))]
+    (+ (base-monthly-payment m)
+       (/ property-tax 12)
+       average-monthly-homeowners-insurance-payment)))
 
 (def foo (make-mortgage 500000 0.0325 0.2 30))
 
 (comment
 
-  (base-monthly-payment foo)
   (total-mortgage-price foo)
+  (base-monthly-payment foo)
+  (total-monthly-payment foo)
 
   )
