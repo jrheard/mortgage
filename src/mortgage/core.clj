@@ -43,8 +43,6 @@
 ; f7: step into
 ; shif-f8:  step out
 
-(def e 2.718)
-
 (s/defschema Mortgage
   {:house-price             s/Int
    :apr                     s/Num
@@ -77,20 +75,20 @@
 
 (s/defn total-mortgage-price :- s/Num
   [m :- Mortgage]
-  (* (get-loan-amount m)
-     (Math/pow e
-               (* (:apr m)
-                  (:num-years m)))))
+  (let [r (/ (:apr m) 12)
+        n (* (:num-years m) 12)]
+    (* (/ (* (get-loan-amount m)
+             r)
+          (- 1
+             (Math/pow (+ 1 r)
+                       (- n))))
+       n)))
 
 (s/defn base-monthly-payment :- s/Num
   [m :- Mortgage]
   (/ (total-mortgage-price m)
      (* (:num-years m)
         12)))
-
-; ok so the math should look something like
-; amount = P * e^rt
-; so is that eg 500,000 * e ^ (0.035 * 30) ?
 
 (def foo (make-mortgage 500000 0.0325 0.2 30))
 
@@ -101,7 +99,7 @@
   (s/fn-schema get-loan-amount)
   (s/fn-schema make-mortgage)
 
-  (total-mortgage-price foo)
   (base-monthly-payment foo)
+  (total-mortgage-price foo)
 
   )
