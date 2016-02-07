@@ -55,14 +55,14 @@
    :apr                     apr
    :down-payment-percentage down-payment-percentage})
 
-(s/defn get-down-payment :- s/Int
+(s/defn get-down-payment :- s/Num
   [m :- Mortgage]
   (- (:house-price m)
      (* (:house-price m)
         (- 1
            (:down-payment-percentage m)))))
 
-(s/defn get-loan-amount :- s/Int
+(s/defn get-loan-amount :- s/Num
   [m :- Mortgage]
   (- (:house-price m)
      (get-down-payment m)))
