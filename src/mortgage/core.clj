@@ -21,8 +21,7 @@
 ; cmd-alt-l: reformat code
 ;
 ; navigation
-; cmd-alt-f7: show usages
-; alt-f7: find usages
+; cmd-f7: show usages
 ; cmd-e: recent files - cursive docs say you can use this instead of tabs, we'll see about that
 ; cmd-shift-o: search for file
 ; cmd-f12: display list of symbols defined in current file, begin typing to search
@@ -33,27 +32,31 @@
 ; cmd-f3: view all bookmarks
 ; cmd-up: open navigation bar, interact w/ it with arrow keys; consider using instead of project browser
 ;
+; testing
+; cmd-t: run tests in current ns
+; cmd-shift-t: run test under caret
+;
 ; debugging
 ; alt-f8: toggle breakpoint
 ; ctrl-d: run program in debug mode
 ; f8: step over
 ; f7: step into
 ; shif-f8:  step out
-;
-; testing
-; cmd-t: run tests in current ns
-; cmd-shift-t: run test under caret
+
+(def e 2.718)
 
 (s/defschema Mortgage
   {:house-price             s/Int
    :apr                     s/Num
-   :down-payment-percentage s/Num})
+   :down-payment-percentage s/Num
+   :num-years               s/Int})
 
 (s/defn make-mortgage :- Mortgage
-  [house-price apr down-payment-percentage]
+  [house-price apr down-payment-percentage num-years]
   {:house-price             house-price
    :apr                     apr
-   :down-payment-percentage down-payment-percentage})
+   :down-payment-percentage down-payment-percentage
+   :num-years               num-years})
 
 (s/defn get-down-payment :- s/Num
   [m :- Mortgage]
@@ -72,7 +75,24 @@
   (> (get-loan-amount m)
      417000))
 
-(def foo (make-mortgage 500000 0.035 0.15))
+(s/defn total-mortgage-price :- s/Num
+  [m :- Mortgage]
+  (* (get-loan-amount m)
+     (Math/pow e
+               (* (:apr m)
+                  (:num-years m)))))
+
+(s/defn base-monthly-payment :- s/Num
+  [m :- Mortgage]
+  (/ (total-mortgage-price m)
+     (* (:num-years m)
+        12)))
+
+; ok so the math should look something like
+; amount = P * e^rt
+; so is that eg 500,000 * e ^ (0.035 * 30) ?
+
+(def foo (make-mortgage 500000 0.0325 0.2 30))
 
 (comment
   (get-loan-amount foo)
@@ -80,4 +100,8 @@
 
   (s/fn-schema get-loan-amount)
   (s/fn-schema make-mortgage)
+
+  (total-mortgage-price foo)
+  (base-monthly-payment foo)
+
   )
