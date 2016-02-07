@@ -10,17 +10,18 @@
 
 (deftest making-mortgage
   (testing "happy path"
-    (is (= (make-mortgage 500000 0.035 0.15)
+    (is (= (make-mortgage 500000 0.035 0.15 30)
            {:house-price             500000
             :apr                     0.035
-            :down-payment-percentage 0.15})))
+            :down-payment-percentage 0.15
+            :num-years 30})))
 
   (testing "garbage input"
     (is (thrown? Exception
-                 (make-mortgage "foo" "bar" "baz")))))
+                 (make-mortgage "foo" "bar" "baz" "quux")))))
 
 (deftest maths
-  (let [a-mortgage (make-mortgage 500000 0.035 0.15)]
+  (let [a-mortgage (make-mortgage 500000 0.035 0.15 30)]
     (testing "get-loan-amount"
       (is (== (get-loan-amount a-mortgage)
               425000)))
