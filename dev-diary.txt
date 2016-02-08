@@ -1,0 +1,24 @@
+2/7/16
+
+spun up a simple little clojure sandbox to play around with mortgage math
+so i can wrap my head around this stuff a bit better.
+
+i've mainly been doing this because i wanted to try out intellij+cursive, which i'm liking
+a lot so far. i've got to memorize a ton of keyboard shortcuts, but it seems like a very
+powerful environment, and it's easy to keep it minimal. its vim integration is fantastic,
+it even has splits!
+
+right now i've got some functions/schemas that encode mortgages and do simple math.
+
+questions i currently want this program to answer:
+
+* given several mortgages, tell me which one's "best"
+* how should i reason about paying off a 30-year in 15 years, vs
+    paying it off in 30 years and investing the extra money in the stock market?
+* say i want to sell my house in 9 years (for instance). how does that affect
+    which mortgage is best? do i want to have paid it off aggressively or slowly?
+
+i'm thinking about converting the project to clojurescript and spinning up a simple
+reagent-powered UI with sliders/etc for interest rates/etc. not for any particularly good
+reason other than just wanting to see how cursive plays with clojurescript. might try
+that tomorrow.

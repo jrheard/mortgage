@@ -136,6 +136,7 @@
 ; TODO net cost (payments - investment income)
 
 (def foo (make-mortgage 500000 0.0325 0.2 30))
+; TODO - cljs+reagent interface that lets you tweak this? with, like, sliders?
 
 (comment
 
