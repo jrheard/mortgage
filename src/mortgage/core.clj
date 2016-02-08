@@ -30,8 +30,8 @@
 ; cmd-shift-o: search for file
 ; cmd-f12: display list of symbols defined in current file, begin typing to search
 ; cmd-b: jump to declaration (siiiiiick - works for builtin clojure functions too)
-; f3: toggle anonymous bookmark
-; alt-f3: add bookmark with mnemonic (use numbers)
+; alt-f3: toggle anonymous bookmark
+; f3: add bookmark with mnemonic (use numbers)
 ; ctrl-<number>: jump to numbered mnemonic bookmark
 ; cmd-f3: view all bookmarks
 ; cmd-up: open navigation bar, interact w/ it with arrow keys; consider using instead of project browser
@@ -133,9 +133,27 @@
        vals
        (apply +)))
 
+(s/defn total-price-breakdown :- {:principal s/Num
+                                  :interest  s/Num
+                                  :monthly-payment s/Num}
+  [m :- Mortgage]
+  (let [payments (get-payments m)]
+    {:principal (apply + (map :principal payments))
+     :interest (apply + (map :interest payments))
+     :total (total-mortgage-price m)
+     :monthly-payment (full-monthly-payment-amount m)}))
+
 ; TODO net cost (payments - investment income)
 
 (def foo (make-mortgage 500000 0.0325 0.2 30))
+(def some-mortgages
+  [(make-mortgage 500000 0.0325 0.2 30)
+   (make-mortgage 500000 0.0325 0.2 15)
+   (make-mortgage 450000 0.0375 0.2 30)
+   (make-mortgage 450000 0.0375 0.2 15)
+   (make-mortgage 400000 0.0375 0.2 30)
+   (make-mortgage 400000 0.0375 0.2 15)])
+
 ; TODO - cljs+reagent interface that lets you tweak this? with, like, sliders?
 
 (comment
@@ -146,5 +164,10 @@
 
   (last
     (get-payments foo))
+
+  (total-mortgage-price foo)
+  (total-price-breakdown foo)
+
+  (map total-price-breakdown some-mortgages)
 
   )
