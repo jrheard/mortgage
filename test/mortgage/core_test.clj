@@ -36,10 +36,14 @@
 
 (deftest jumbo
   (testing "is-jumbo"
-    (is (= (is-jumbo-loan (c/complete {:house-price 400000 :down-payment-percentage 0} Mortgage))
+    (is (= (is-jumbo-loan (c/complete
+                            {:house-price 400000 :down-payment-percentage 0}
+                            Mortgage))
            false))
 
-    (is (= (is-jumbo-loan (c/complete {:house-price 500000 :down-payment-percentage 0.05} Mortgage))
+    (is (= (is-jumbo-loan (c/complete
+                            {:house-price 500000 :down-payment-percentage 0.05}
+                            Mortgage))
            true))))
 
 (comment

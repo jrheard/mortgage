@@ -11,14 +11,18 @@
 ; cmd-ctrl-s is join (?! i hate this pair of keybinds)
 ;
 ; repl commands
+; cmd-shift-r: start repl
 ; cmd-shift-l sends file to repl (equivalent of cpr in fireplace)
 ; cmd-shift-p sends current form to repl (equivalent of cpp in fireplace)
 ; cmd-alt-e: view repl history
-;
+
 ; documentation
 ; cmd-p: show parameters this function takes
 ; ctrl-j: show docstring
+;
+; assorted
 ; cmd-alt-l: reformat code
+; shift-f6: rename
 ;
 ; navigation
 ; cmd-f7: show usages
@@ -42,6 +46,9 @@
 ; f8: step over
 ; f7: step into
 ; shif-f8:  step out
+;
+; one last vim command to memorize:
+; ctrl-w c - closes window (for use with :split, etc)
 
 ; per https://smartasset.com/taxes/oregon-property-tax-calculator#7KnveUIptd
 (def multnomah-county-property-tax-rate 0.01123)
@@ -54,6 +61,12 @@
    :apr                     s/Num
    :down-payment-percentage s/Num
    :num-years               s/Int})
+
+(s/defschema MonthlyPayment
+  {:principal    s/Num
+   :interest     s/Num
+   :property-tax s/Num
+   :insurance    s/Num})
 
 (s/defn make-mortgage :- Mortgage
   [house-price apr down-payment-percentage num-years]
@@ -80,35 +93,57 @@
 ; per http://www.calcunation.com/calculator/mortgage-total-cost.php
 (s/defn total-mortgage-price :- s/Num
   [m :- Mortgage]
-  (let [r (/ (:apr m) 12)
-        n (* (:num-years m) 12)]
+  (let [monthly-interest-rate (/ (:apr m) 12)
+        num-months (* (:num-years m) 12)]
     (* (/ (* (get-loan-amount m)
-             r)
+             monthly-interest-rate)
           (- 1
-             (Math/pow (+ 1 r)
-                       (- n))))
-       n)))
+             (Math/pow (+ 1 monthly-interest-rate)
+                       (- num-months))))
+       num-months)))
 
-(s/defn base-monthly-payment :- s/Num
+(s/defn base-monthly-payment-amount :- s/Num
   [m :- Mortgage]
   (/ (total-mortgage-price m)
      (* (:num-years m)
         12)))
 
-(s/defn total-monthly-payment :- s/Num
+(s/defn get-payments :- [MonthlyPayment]
   [m :- Mortgage]
-  (let [property-tax (* multnomah-county-property-tax-rate
-                        (:house-price m))]
-    (+ (base-monthly-payment m)
-       (/ property-tax 12)
-       average-monthly-homeowners-insurance-payment)))
+  (loop [principal (get-loan-amount m)
+         result []]
+    (if (> principal 0)
+      (let [interest (/ (* principal (:apr m))
+                        12)
+            payment {:principal    (- (base-monthly-payment-amount m) interest)
+                     :interest     interest
+                     :property-tax (/ (* multnomah-county-property-tax-rate
+                                         (:house-price m))
+                                      12)
+                     :insurance    average-monthly-homeowners-insurance-payment}]
+        (recur (- principal (:principal payment))
+               (conj result payment)))
+      result)))
+
+(s/defn full-monthly-payment-amount :- s/Num
+  [m :- Mortgage]
+  (->> m
+       get-payments
+       first
+       vals
+       (apply +)))
+
+; TODO net cost (payments - investment income)
 
 (def foo (make-mortgage 500000 0.0325 0.2 30))
 
 (comment
 
   (total-mortgage-price foo)
-  (base-monthly-payment foo)
-  (total-monthly-payment foo)
+  (base-monthly-payment-amount foo)
+  (full-monthly-payment-amount foo)
+
+  (last
+    (get-payments foo))
 
   )
