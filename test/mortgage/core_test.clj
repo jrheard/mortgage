@@ -8,6 +8,8 @@
 
 (use-fixtures :once schema.test/validate-schemas)
 
+; TODO convert all this to js; it's all broken right now i'm sure
+
 (deftest making-mortgage
   (testing "happy path"
     (is (= (make-mortgage 500000 0.035 0.15 30)

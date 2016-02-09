@@ -69,4 +69,6 @@ re: switching to the namespace of the file i load, it looks like i might need to
 namespace-switching manually - there's a tools->repl->etc thing that i can add a keyboard shortcut
 for, so i'll just do that if it ends up being an issue.
 
-gonna try editor tabs - configured cmd-shift-, for prev tab, cmd-shift-. for next tabjjkj
+gonna try editor tabs - configured cmd-shift-, for prev tab, cmd-shift-. for next tab
+
+setting up reagent, copy-pasting a lot of stuff from cljstone :/

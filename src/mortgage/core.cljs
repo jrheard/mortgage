@@ -1,5 +1,6 @@
 (ns mortgage.core
-  (:require [schema.core :as s])
+  (:require [reagent.core :as r]
+            [schema.core :as s])
   (:require-macros [schema.core :as sm]))
 
 ; paredit
@@ -158,17 +159,35 @@
 
 (def foo (first some-mortgages))
 
-; TODO - cljs+reagent interface that lets you tweak this? with, like, sliders?
+(sm/defschema UIState {})
+
+(defonce state (r/atom some-mortgages))
+
+(sm/defn draw-mortgage [m :- Mortgage]
+  (js/console.log "draw-mortgage called")
+  [:div (js/JSON.stringify (clj->js m))]
+  )
+
+(defn draw-state [state]
+  (js/console.log "draw-state called")
+  (js/console.log (count @state))
+  [:div
+   (for [[index m] (map-indexed vector @state)]
+     ^{:key (str "mortgage-" index)} [draw-mortgage m])]
+  )
+
+(defn ^:export main []
+  (r/render-component [draw-state state]
+                      (js/document.getElementById "content")))
 
 (comment
+
+
   (last
     (get-payments foo))
 
   (total-mortgage-price foo)
   (total-price-breakdown foo)
-
-  (defn foo [bar]
-    (+ bar 3))
 
   (map total-price-breakdown some-mortgages)
   (map total-mortgage-price some-mortgages)

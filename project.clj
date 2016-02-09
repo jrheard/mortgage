@@ -8,7 +8,8 @@
                  [org.clojure/core.async "0.2.374" :exclusions [org.clojure/tools.reader]]
                  [org.clojure/test.check "0.9.0"]
                  [figwheel-sidecar "0.5.0"]
-                 [prismatic/schema "1.0.4"]]
+                 [prismatic/schema "1.0.4"]
+                 [reagent "0.6.0-alpha"]]
   :plugins [[lein-cljsbuild "1.1.2" :exclusions [[org.clojure/clojure]]]]
   :source-paths ["src"
                  "script"]
@@ -17,7 +18,7 @@
   :figwheel {:open-file-command "open-in-intellij"}
   :cljsbuild {:builds [{:id           "dev"
                         :source-paths ["src"]
-                        :figwheel     true
+                        :figwheel     {:on-jsload "mortgage.core/main"}
                         :compiler     {:main                 mortgage.core
                                        :asset-path           "js/compiled/out"
                                        :output-to            "resources/public/js/compiled/mortgage.js"
