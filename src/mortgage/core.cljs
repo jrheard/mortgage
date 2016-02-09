@@ -1,5 +1,6 @@
 (ns mortgage.core
-  (:require [schema.core :as s]))
+  (:require [schema.core :as s])
+  (:require-macros [schema.core :as sm]))
 
 ; paredit
 ; cmd+shift+j, cmd+shift+k - move right paren back/forth
@@ -56,42 +57,45 @@
 ; per http://www.valuepenguin.com/average-cost-of-homeowners-insurance
 (def average-monthly-homeowners-insurance-payment 47.98)
 
-(s/defschema Mortgage
+; TODO - current situation is that the cursive repl doesn't automatically switch to mortgage.core ns when cmd-shift-l happens
+
+(sm/defschema Mortgage
   {:house-price             s/Int
    :apr                     s/Num
    :down-payment-percentage s/Num
    :num-years               s/Int})
 
-(s/defschema MonthlyPayment
+
+(sm/defschema MonthlyPayment
   {:principal    s/Num
    :interest     s/Num
    :property-tax s/Num
    :insurance    s/Num})
 
-(s/defn make-mortgage :- Mortgage
+(sm/defn make-mortgage :- Mortgage
   [house-price apr down-payment-percentage num-years]
   {:house-price             house-price
    :apr                     apr
    :down-payment-percentage down-payment-percentage
    :num-years               num-years})
 
-(s/defn get-down-payment :- s/Num
+(sm/defn get-down-payment :- s/Num
   [m :- Mortgage]
   (* (:house-price m)
      (:down-payment-percentage m)))
 
-(s/defn get-loan-amount :- s/Num
+(sm/defn get-loan-amount :- s/Num
   [m :- Mortgage]
   (- (:house-price m)
      (get-down-payment m)))
 
-(s/defn is-jumbo-loan :- s/Bool
+(sm/defn is-jumbo-loan :- s/Bool
   [m :- Mortgage]
   (> (get-loan-amount m)
      417000))
 
 ; per http://www.calcunation.com/calculator/mortgage-total-cost.php
-(s/defn total-mortgage-price :- s/Num
+(sm/defn total-mortgage-price :- s/Num
   [m :- Mortgage]
   (let [monthly-interest-rate (/ (:apr m) 12)
         num-months (* (:num-years m) 12)]
@@ -102,13 +106,13 @@
                        (- num-months))))
        num-months)))
 
-(s/defn base-monthly-payment-amount :- s/Num
+(sm/defn base-monthly-payment-amount :- s/Num
   [m :- Mortgage]
   (/ (total-mortgage-price m)
      (* (:num-years m)
         12)))
 
-(s/defn get-payments :- [MonthlyPayment]
+(sm/defn get-payments :- [MonthlyPayment]
   [m :- Mortgage]
   (loop [principal (get-loan-amount m)
          result []]
@@ -125,7 +129,7 @@
                (conj result payment)))
       result)))
 
-(s/defn full-monthly-payment-amount :- s/Num
+(sm/defn full-monthly-payment-amount :- s/Num
   [m :- Mortgage]
   (->> m
        get-payments
@@ -133,41 +137,44 @@
        vals
        (apply +)))
 
-(s/defn total-price-breakdown :- {:principal s/Num
-                                  :interest  s/Num
-                                  :monthly-payment s/Num}
+(sm/defn total-price-breakdown :- {:principal       s/Num
+                                   :interest        s/Num
+                                   :monthly-payment s/Num}
   [m :- Mortgage]
   (let [payments (get-payments m)]
-    {:principal (apply + (map :principal payments))
-     :interest (apply + (map :interest payments))
-     :total (total-mortgage-price m)
+    {:principal       (apply + (map :principal payments))
+     :interest        (apply + (map :interest payments))
+     :total           (total-mortgage-price m)
      :monthly-payment (full-monthly-payment-amount m)}))
 
-; TODO net cost (payments - investment income)
-
-(def foo (make-mortgage 500000 0.0325 0.2 30))
 (def some-mortgages
-  [(make-mortgage 500000 0.0325 0.2 30)
+  [(make-mortgage 550000 0.0325 0.2 30)
+   (make-mortgage 500000 0.0325 0.2 30)
    (make-mortgage 500000 0.0325 0.2 15)
    (make-mortgage 450000 0.0375 0.2 30)
    (make-mortgage 450000 0.0375 0.2 15)
    (make-mortgage 400000 0.0375 0.2 30)
    (make-mortgage 400000 0.0375 0.2 15)])
 
+(def foo (first some-mortgages))
+
 ; TODO - cljs+reagent interface that lets you tweak this? with, like, sliders?
 
 (comment
-
-  (total-mortgage-price foo)
-  (base-monthly-payment-amount foo)
-  (full-monthly-payment-amount foo)
-
   (last
     (get-payments foo))
 
   (total-mortgage-price foo)
   (total-price-breakdown foo)
 
+  (defn foo [bar]
+    (+ bar 3))
+
+  (map total-price-breakdown some-mortgages)
+  (map total-mortgage-price some-mortgages)
+
   (map total-price-breakdown some-mortgages)
 
+  (apply min-key :total
+         (map total-price-breakdown some-mortgages))
   )

@@ -22,3 +22,51 @@ i'm thinking about converting the project to clojurescript and spinning up a sim
 reagent-powered UI with sliders/etc for interest rates/etc. not for any particularly good
 reason other than just wanting to see how cursive plays with clojurescript. might try
 that tomorrow.
+
+====
+
+2/8/16
+
+given several mortgages, tell me which is best:
+
+(apply min-key :total
+     (map total-price-breakdown some-mortgages))
+
+hrm, need to get in the habit of taking notes here. forgot about this file all day,
+maybe i should try using tabs in cursive.
+
+smoy and avinson talked me out of pursuing the pay-off-in-30-and-invest-the-difference thing,
+so i'm poking around and trying to figure out how to convert this project to cljs.
+
+converting a clj project to cljs is pretty fiddly business, involves a lot of handmade edits
+to project.clj. best method seems to be to do `lein new figwheel blat` and copy over large
+portions of its project.clj and its whole resources/public/index.html.
+
+had some trouble getting cursive to deal with the cljs conversion - looks like it doesn't
+currently support that thing where you don't need to :require-macros if the library
+follows certain naming patterns. added :require-macros in the meantime to deal
+with it.
+
+https://github.com/cursive-ide/cursive/issues/775
+
+currently it looks like things are working pretty well, except i'm having a bit of trouble
+with the cljs repl - when i do cmd-shift-l to load core.cljs, the repl doesn't change
+its ns to mortgage.core, it stays at cljs.user, and so i get "Use of undeclared Var
+cljs/user.Mortgage" when i try to cmd-shift-p something, etc etc. (in-ns 'mortgage.core)
+fixes it, but i need to research this more and see if there's a way to do this automatically.
+
+haven't converted any of the java-specific stuff (Math/pow, etc) to js, need to do that.
+
+====
+
+2/9/16
+
+well, it looks like the cljs conversion completely worked yesterday, i didn't need to do anything
+today. both java and js have a Math/pow, which is hilarious, so i didn't need to change that.
+playing around with mortgage.core in the repl seems to work fine.
+
+re: switching to the namespace of the file i load, it looks like i might need to just handle
+namespace-switching manually - there's a tools->repl->etc thing that i can add a keyboard shortcut
+for, so i'll just do that if it ends up being an issue.
+
+gonna try editor tabs - configured cmd-shift-, for prev tab, cmd-shift-. for next tabjjkj
