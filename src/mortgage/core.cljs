@@ -183,6 +183,7 @@
                       (js/document.getElementById "content")))
 
 (comment
+  (q/show-cats)
 
   (last
     (get-payments foo))

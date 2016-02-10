@@ -82,3 +82,41 @@ https://natasha.codes/highcharts-clojurescript-om/
 http://annekjohnson.com/blog/2014/10/using-clojurescript-to-make-charts-with-raphael/ - ignore
 https://github.com/quil/quil ?
 
+====
+
+2/10/16
+
+yeah, c2 seems abandoned, gonna look into quil.
+whimsical readme, evokes _why
+
+vaguely curious about how to use quil and reagent together, or if i should just one of them,
+if i want to do that binding of isaac clone - saving these links for later
+
+- https://stackoverflow.com/questions/33345084/quil-sketch-on-a-reagent-canvas
+
+hm, clojurians-log.mantike.pro/clojurescript/2016-01-21.html might indicate that i should be
+using svg directly instead of quil/etc.
+
+i guess the current ui i have in mind - i should write that down - doesn't take much mouse input...
+
+so what i have in mind is that there are a few independent variables:
+
+house price
+interest rate
+down payment percentage
+loan duration
+
+and really only two main dependent variables that i care about:
+
+money thrown away (total sum of interest payments over lifetime of mortgage)
+total monthly payment (incl taxes+insurance)
+
+so really i'd just like to get straight to drawing those on a screen. it doesn't seem like
+there's a particularly good library for this if c2 is abandoned; quil doesn't seem very relevant,
+although i'm going to keep reading about it and maybe dig through its source code for fun.
+
+quick note for boi clone from that irc log above:
+"I think common wisdom is that SVG is easier, but canvas has much better performance"
+
+anyway i'm gonna stick with svg for this dumb little project. never used it before though,
+so i'll have to do some reading about wtf it is and how to use it
