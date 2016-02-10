@@ -178,8 +178,13 @@
      ^{:key (str "mortgage-" index)} [draw-mortgage m])]
   )
 
+(defn draw-svg-example []
+  [:svg
+   [:rect {:x 50 :y 50 :width 50 :height 50}]]
+  )
+
 (defn ^:export main []
-  (r/render-component [draw-state state]
+  (r/render-component [draw-svg-example]
                       (js/document.getElementById "content")))
 
 (comment

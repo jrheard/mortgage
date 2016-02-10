@@ -141,6 +141,7 @@ lol jesus christ that's a lot of links
 svg animation:
 - https://davidwalsh.name/svg-animation
 something called smil comes up in a few of these links, apparently it's dead?
+- https://css-tricks.com/guide-svg-animations-smil/
 - https://css-tricks.com/smil-is-dead-long-live-smil-a-guide-to-alternatives-to-smil-features/ in case i care about this
 - programming-enchiladas.destructuring-bind.org
 
@@ -153,3 +154,11 @@ so i probably don't want to use raphael.
 
 ok that's enough, i should just start digging through https://css-tricks.com/using-svg/ and then write reagent
 code that emits svg elements directly, doesn't look like i need to use any libraries.
+
+ok that was garbage, trying https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial now
+
+lol the end result of all this for this particular mortgage project will be that i did a jillion tabs' worth
+of research just to learn how to use the <rect> element, but this'll come in handy if i decide to make
+a BoI clone
+
+see also https://www.w3.org/Graphics/SVG/IG/resources/svgprimer.html#overview
