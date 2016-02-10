@@ -164,13 +164,15 @@
 (defonce state (r/atom some-mortgages))
 
 (sm/defn draw-mortgage [m :- Mortgage]
-  (js/console.log "draw-mortgage called")
-  [:div (js/JSON.stringify (clj->js m))]
+  [:div.mortgage
+   [:div.house-price (:house-price m)]
+   [:div.apr (:apr m)]
+   [:div.down-payment-percentage (:down-payment-percentage m)]
+   [:div.num-years (:num-years m)]
+   ]
   )
 
 (defn draw-state [state]
-  (js/console.log "draw-state called")
-  (js/console.log (count @state))
   [:div
    (for [[index m] (map-indexed vector @state)]
      ^{:key (str "mortgage-" index)} [draw-mortgage m])]
@@ -181,7 +183,6 @@
                       (js/document.getElementById "content")))
 
 (comment
-
 
   (last
     (get-payments foo))

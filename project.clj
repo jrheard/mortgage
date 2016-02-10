@@ -15,7 +15,8 @@
                  "script"]
   :target-path "target/%s"
   :clean-targets ^{:protect false} ["resources/public/js/compiled" "target"]
-  :figwheel {:open-file-command "open-in-intellij"}
+  :figwheel {:open-file-command "open-in-intellij"
+             :css-dirs ["resources/public/css"]}
   :cljsbuild {:builds [{:id           "dev"
                         :source-paths ["src"]
                         :figwheel     {:on-jsload "mortgage.core/main"}

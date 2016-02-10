@@ -72,3 +72,13 @@ for, so i'll just do that if it ends up being an issue.
 gonna try editor tabs - configured cmd-shift-, for prev tab, cmd-shift-. for next tab
 
 setting up reagent, copy-pasting a lot of stuff from cljstone :/
+
+ok, reagent was relatively easy to set up. i'm able to display a list of mortgages on the page.
+
+now, how best to display them? what's a good charting library?
+
+https://keminglabs.com/c2/ - heard about this before, but seems abandoned
+https://natasha.codes/highcharts-clojurescript-om/
+http://annekjohnson.com/blog/2014/10/using-clojurescript-to-make-charts-with-raphael/ - ignore
+https://github.com/quil/quil ?
+

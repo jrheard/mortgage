@@ -1,0 +1,11 @@
+.mortgage {
+overflow: hidden;
+display: block;
+margin: 30px auto;
+width: 1400px;
+}
+
+div.mortgage > div {
+float: left;
+width: 300px;
+}
