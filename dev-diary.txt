@@ -120,3 +120,36 @@ quick note for boi clone from that irc log above:
 
 anyway i'm gonna stick with svg for this dumb little project. never used it before though,
 so i'll have to do some reading about wtf it is and how to use it
+
+some more quil notes while i process all these tabs i opened:
+quil has a "functional mode" described in https://nvbn.github.io/2015/05/28/svg-animation/,
+is pretty imperative/processing-y otherwise though, i prob wouldn't like working with it
+
+quil.info/sketches/show/example_nanoscopic pretty cool quil demo
+
+- https://nvbn.github.io/2015/05/28/svg-animation/ - svg with om (not reagent)
+^ ok this shit is gold, will be super useful for isaac
+
+- documentup.com/aaronc/freactive# exists, might be useful for animations, looks very alpha though
+
+- https://github.com/pleasetrythisathome/bardo maybe useful for animations in boi
+
+ok, enough quil, svg notes:
+- www.webdesignerdepot.com/2015/01/the-ultimate-guide-to-svg/ - article is pretty fluffy but has tons of links
+lol jesus christ that's a lot of links
+
+svg animation:
+- https://davidwalsh.name/svg-animation
+something called smil comes up in a few of these links, apparently it's dead?
+- https://css-tricks.com/smil-is-dead-long-live-smil-a-guide-to-alternatives-to-smil-features/ in case i care about this
+- programming-enchiladas.destructuring-bind.org
+
+what is raphael, is it good, do i want to use it in cljs?
+https://maurits.wordpress.com/2012/02/13/first-clojurescript-experiences-using-raphael/ says
+"here is lots of room for improvement in the code. My first idea was to make it more DSL like, using macros.
+But then again, SVG is already kind of a DSL, so it would probably make more sense to let the code output
+SVG directly instead of using Raphaël as an extra layer."o
+so i probably don't want to use raphael.
+
+ok that's enough, i should just start digging through https://css-tricks.com/using-svg/ and then write reagent
+code that emits svg elements directly, doesn't look like i need to use any libraries.
