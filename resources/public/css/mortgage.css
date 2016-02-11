@@ -1,3 +1,4 @@
+/*
 .mortgage {
 overflow: hidden;
 display: block;
@@ -8,4 +9,19 @@ width: 1400px;
 div.mortgage > div {
 float: left;
 width: 300px;
+}
+*/
+
+
+table {
+margin: 50px auto;
+width: 800px;
+}
+
+th {
+font-weight: bold;
+}
+
+td {
+text-align: center;
 }

@@ -161,30 +161,47 @@
 
 (sm/defschema UIState {})
 
-(defonce state (r/atom some-mortgages))
-
 (sm/defn draw-mortgage [m :- Mortgage]
-  [:div.mortgage
-   [:div.house-price (:house-price m)]
-   [:div.apr (:apr m)]
-   [:div.down-payment-percentage (:down-payment-percentage m)]
-   [:div.num-years (:num-years m)]
+  (js/console.log m)
+  [:tr.mortgage
+   [:td (:house-price m)]
+   [:td (:apr m)]
+   [:td (:down-payment-percentage m)]
+   [:td (:num-years m)]
    ]
+
   )
 
 (defn draw-state [state]
-  [:div
-   (for [[index m] (map-indexed vector @state)]
-     ^{:key (str "mortgage-" index)} [draw-mortgage m])]
+  [:table
+   [:tbody
+    [:tr
+     [:th "House Price"]
+     [:th "APR"]
+     [:th "% Down"]
+     [:th "Duration"]
+     ]
+    (for [[index m] (map-indexed vector (:mortgages state))]
+      ^{:key (str "mortgage-" index)} [draw-mortgage m])]]
   )
 
 (defn draw-svg-example []
-  [:svg
+  [:svg {:version "1.1"
+         :width   300
+         :height  200
+         :xmlns   "http://www.w3.org/2000/svg"}
    [:rect {:x 50 :y 50 :width 50 :height 50}]]
   )
 
+; ok so there'll be two sections - a table of just plain old numbers/data
+; one row per mortgage option
+; and a couple of bar graphs - one charting money-wasted, one charting monthly-payment
+; nice mouseover behavior highlights the relevant bars and the relevant row
+
+(def state (r/atom {:mortgages some-mortgages}))
+
 (defn ^:export main []
-  (r/render-component [draw-svg-example]
+  (r/render-component [draw-state @state]
                       (js/document.getElementById "content")))
 
 (comment
