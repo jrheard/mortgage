@@ -153,29 +153,34 @@
 
 (sm/defn draw-bar-graph [y-axis-label :- s/Str
                          data-points :- [s/Num]]
-  [:svg {:width 400 :height 300}
+  [:svg {:width 500 :height 300}
    [:line {:x1           100 :y1 20
            :x2           100 :y2 280
            :stroke       "black"
            :stroke-width 1}]
    [:line {:x1           100 :y1 280
-           :x2           400 :y2 280
+           :x2           500 :y2 280
            :stroke       "black"
            :stroke-width 1}]
    [:text {:x 70 :y 235 :transform "rotate(270 75 230)"} y-axis-label]
    [:text {:x 90 :y 30 :text-anchor "end"} (str "$" (.toLocaleString (int (apply max data-points))))]
    (for [[index point] (map-indexed vector data-points)]
-     ^{:key (str "rect-" point)} [:rect {:x         (+ 110 (* index 50))
-                                         :y         30
-                                         :width     40
-                                         :height    (* 250
-                                                       (/ point (apply max data-points)))}])])
+     (let [x (+ 110 (* index 50))
+           height (* 250
+                     (/ point (apply max data-points)))]
+       ^{:key (str "rect-" point)} [:rect {:x         (- x 50)
+                                           :y         280
+                                           :width     40
+                                           :transform (str "rotate(180 " x " " 280 ")")
+                                           ; TODO tooltip too
+                                           :height    height}]))])
 
 (sm/defn draw-money-wasted [state :- UIState]
   [draw-bar-graph "Money Wasted On Interest" (map (comp :interest total-price-breakdown) (:mortgages state))]
   )
 
 (sm/defn draw-monthly-payment [state :- UIState]
+  [draw-bar-graph "Total Monthly Payment" (map full-monthly-payment-amount (:mortgages state))]
   )
 
 (sm/defn draw-mortgage [m :- Mortgage
