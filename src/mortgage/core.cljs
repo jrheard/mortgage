@@ -184,8 +184,6 @@
    [:text {:x 90 :y 30 :text-anchor "end"} (str "$" (.toLocaleString (int (apply max (map :value data-points)))))]
 
    (for [[index point] (map-indexed vector data-points)]
-     (do (js/console.log (:selected-mortgage state))
-         (js/console.log (:mortgage point))
          (let [x (+ 110 (* index 50))
                height (* 250
                          (/ (:value point) (apply max (map :value data-points))))]
@@ -194,12 +192,12 @@
                                                :width          40
                                                :transform      (str "rotate(180 " x " " 280 ")")
                                                :height         height
-                                               :class (when (= (:selected-mortgage state) (:mortgage point))
-                                                        "selected")
+                                               :class          (when (= (:selected-mortgage state) (:mortgage point))
+                                                                 "selected")
                                                :on-mouse-enter #(put! (:ui-event-chan state) {:type     :selection-start
                                                                                               :mortgage (:mortgage point)})
                                                :on-mouse-leave #(put! (:ui-event-chan state) {:type :selection-end})
-                                               }])))])
+                                               }]))])
 
 (sm/defn draw-money-wasted [state :- UIState]
   [draw-bar-graph
@@ -222,8 +220,11 @@
 (sm/defn draw-mortgage [m :- Mortgage
                         state :- UIState]
   [:tr.mortgage
-   {:class (when (= m (:selected-mortgage state))
-             "selected")}
+   {:on-mouse-enter #(put! (:ui-event-chan state) {:type     :selection-start
+                                                   :mortgage m})
+    :on-mouse-leave #(put! (:ui-event-chan state) {:type :selection-end})
+    :class          (when (= m (:selected-mortgage state))
+                      "selected")}
    [:td (:house-price m)]
    [:td (:apr m)]
    [:td (:down-payment-percentage m)]
@@ -270,8 +271,6 @@
       (condp = (:type msg)
         :selection-start (swap! ui-state assoc :selected-mortgage (:mortgage msg))
         :selection-end (swap! ui-state assoc :selected-mortgage nil))
-      (js/console.log (clj->js msg))
-      ;(js/console.log (clj->js (:mortgage msg)))
       (recur))))
 
 (defn ^:export main []
