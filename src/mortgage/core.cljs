@@ -61,6 +61,7 @@
 ; per http://www.valuepenguin.com/average-cost-of-homeowners-insurance
 (def average-monthly-homeowners-insurance-payment 47.98)
 
+; TODO - why did i add this? delete it if it's unused
 (def next-mortgage-id (atom 0))
 (defn get-next-mortgage-id []
   (let [ret @next-mortgage-id]
@@ -167,7 +168,8 @@
                          :value    s/Num})
 
 (sm/defn draw-bar-graph [y-axis-label :- s/Str
-                         data-points :- [DataPoint]]
+                         data-points :- [DataPoint]
+                         state]
   [:svg {:width 500 :height 300}
    [:line {:x1           100 :y1 20
            :x2           100 :y2 280
@@ -181,26 +183,31 @@
    [:text {:x 70 :y 235 :transform "rotate(270 75 230)"} y-axis-label]
    [:text {:x 90 :y 30 :text-anchor "end"} (str "$" (.toLocaleString (int (apply max (map :value data-points)))))]
 
-
    (for [[index point] (map-indexed vector data-points)]
-     (let [x (+ 110 (* index 50))
-           height (* 250
-                     (/ (:value point) (apply max (map :value data-points))))]
-       ^{:key (str "rect-" point)} [:rect {:x              (- x 50)
-                                           :y              280
-                                           :width          40
-                                           :transform      (str "rotate(180 " x " " 280 ")")
-                                           :height         height
-                                           :on-mouse-enter #((-> % .-currentTarget js/console.log))
-
-                                           }]))])
+     (do (js/console.log (:selected-mortgage state))
+         (js/console.log (:mortgage point))
+         (let [x (+ 110 (* index 50))
+               height (* 250
+                         (/ (:value point) (apply max (map :value data-points))))]
+           ^{:key (str "rect-" point)} [:rect {:x              (- x 50)
+                                               :y              280
+                                               :width          40
+                                               :transform      (str "rotate(180 " x " " 280 ")")
+                                               :height         height
+                                               :class (when (= (:selected-mortgage state) (:mortgage point))
+                                                        "selected")
+                                               :on-mouse-enter #(put! (:ui-event-chan state) {:type     :selection-start
+                                                                                              :mortgage (:mortgage point)})
+                                               :on-mouse-leave #(put! (:ui-event-chan state) {:type :selection-end})
+                                               }])))])
 
 (sm/defn draw-money-wasted [state :- UIState]
   [draw-bar-graph
    "Money Wasted On Interest"
    (for [m (:mortgages state)]
      {:mortgage m
-      :value    (-> m total-price-breakdown :interest)})]
+      :value    (-> m total-price-breakdown :interest)})
+   state]
   )
 
 (sm/defn draw-monthly-payment [state :- UIState]
@@ -208,31 +215,35 @@
    "Total Monthly Payment"
    (for [m (:mortgages state)]
      {:mortgage m
-      :value (full-monthly-payment-amount m)})]
+      :value    (full-monthly-payment-amount m)})
+   state]
   )
 
 (sm/defn draw-mortgage [m :- Mortgage
                         state :- UIState]
   [:tr.mortgage
+   {:class (when (= m (:selected-mortgage state))
+             "selected")}
    [:td (:house-price m)]
    [:td (:apr m)]
    [:td (:down-payment-percentage m)]
    [:td (:num-years m)]])
 
 
-(sm/defn draw-state [state :- UIState]
-  [:div.content
-   [draw-money-wasted state]
-   [draw-monthly-payment state]
-   [:table
-    [:tbody
-     [:tr
-      [:th "House Price"]
-      [:th "APR"]
-      [:th "% Down"]
-      [:th "Duration"]]
-     (for [[index m] (map-indexed vector (:mortgages state))]
-       ^{:key (str "mortgage-" index)} [draw-mortgage m state])]]])
+(defn draw-state [state]
+  (let [state @state]
+    [:div.content
+     [draw-money-wasted state]
+     [draw-monthly-payment state]
+     [:table
+      [:tbody
+       [:tr
+        [:th "House Price"]
+        [:th "APR"]
+        [:th "% Down"]
+        [:th "Duration"]]
+       (for [[index m] (map-indexed vector (:mortgages state))]
+         ^{:key (str "mortgage-" index)} [draw-mortgage m state])]]]))
 
 ; ok so there'll be two sections - a table of just plain old numbers/data
 ; one row per mortgage option
@@ -248,13 +259,26 @@
    (make-mortgage 400000 0.0375 0.2 30)
    (make-mortgage 400000 0.0375 0.2 15)])
 
-(defonce state (r/atom {:mortgages         some-mortgages
-                        :selected-mortgage nil
-                        :ui-event-chan     (chan)}))
+(def state (r/atom {:mortgages         some-mortgages
+                    :selected-mortgage nil
+                    :ui-event-chan     (chan)}))
+
+(defn handle-ui-events [ui-state]
+  (go-loop []
+    (let [state @ui-state
+          msg (<! (:ui-event-chan state))]
+      (condp = (:type msg)
+        :selection-start (swap! ui-state assoc :selected-mortgage (:mortgage msg))
+        :selection-end (swap! ui-state assoc :selected-mortgage nil))
+      (js/console.log (clj->js msg))
+      ;(js/console.log (clj->js (:mortgage msg)))
+      (recur))))
 
 (defn ^:export main []
-  (r/render-component [draw-state @state]
-                      (js/document.getElementById "content")))
+  (r/render-component [draw-state state]
+                      (js/document.getElementById "content"))
+  (handle-ui-events state)
+  )
 
 (comment
   (last

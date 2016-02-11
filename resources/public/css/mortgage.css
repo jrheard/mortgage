@@ -25,3 +25,11 @@ font-weight: bold;
 td {
 text-align: center;
 }
+
+tr.selected {
+background: orange;
+}
+
+rect.selected {
+fill: orange;
+}
