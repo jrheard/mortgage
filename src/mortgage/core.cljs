@@ -52,20 +52,19 @@
 ; one last vim command to memorize:
 ; ctrl-w c - closes window (for use with :split, etc)
 
+;;; Mortgage math
+
 ; per https://smartasset.com/taxes/oregon-property-tax-calculator#7KnveUIptd
 (def multnomah-county-property-tax-rate 0.01123)
 
 ; per http://www.valuepenguin.com/average-cost-of-homeowners-insurance
 (def average-monthly-homeowners-insurance-payment 47.98)
 
-; TODO - current situation is that the cursive repl doesn't automatically switch to mortgage.core ns when cmd-shift-l happens
-
 (sm/defschema Mortgage
   {:house-price             s/Int
    :apr                     s/Num
    :down-payment-percentage s/Num
    :num-years               s/Int})
-
 
 (sm/defschema MonthlyPayment
   {:principal    s/Num
@@ -148,6 +147,62 @@
      :total           (total-mortgage-price m)
      :monthly-payment (full-monthly-payment-amount m)}))
 
+;;; UI
+
+(sm/defschema UIState {:mortgages [Mortgage]})
+
+(sm/defn draw-bar-graph [y-axis-label :- s/Str
+                         data-points :- [s/Num]]
+  [:svg {:width 400 :height 300}
+   [:line {:x1 50 :y1 20
+           :x2 50 :y2 280
+           :stroke "black"
+           :stroke-width 1}]
+   [:line {:x1 50 :y1 280
+           :x2 380 :y2 280
+           :stroke "black"
+           :stroke-width 1}]
+   ; i just do not understand this rotate thing at all
+   ; TODO read https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/transform
+   [:text {:x 10 :y 280 :transform "rotate(270 30 280)"} y-axis-label]
+   ]
+  )
+
+(sm/defn draw-money-wasted [state :- UIState]
+  [draw-bar-graph "Money Wasted On Interest" (map (comp :interest total-price-breakdown) (:mortgages state))]
+  )
+
+(sm/defn draw-monthly-payment [state :- UIState]
+  )
+
+(sm/defn draw-mortgage [m :- Mortgage
+                        state :- UIState]
+  [:tr.mortgage
+   [:td (:house-price m)]
+   [:td (:apr m)]
+   [:td (:down-payment-percentage m)]
+   [:td (:num-years m)]])
+
+
+(sm/defn draw-state [state :- UIState]
+  [:div.content
+   [draw-money-wasted state]
+   [draw-monthly-payment state]
+   [:table
+    [:tbody
+     [:tr
+      [:th "House Price"]
+      [:th "APR"]
+      [:th "% Down"]
+      [:th "Duration"]]
+     (for [[index m] (map-indexed vector (:mortgages state))]
+       ^{:key (str "mortgage-" index)} [draw-mortgage m state])]]])
+
+; ok so there'll be two sections - a table of just plain old numbers/data
+; one row per mortgage option
+; and a couple of bar graphs - one charting money-wasted, one charting monthly-payment
+; nice mouseover behavior highlights the relevant bars and the relevant row
+
 (def some-mortgages
   [(make-mortgage 550000 0.0325 0.2 30)
    (make-mortgage 500000 0.0325 0.2 30)
@@ -156,47 +211,6 @@
    (make-mortgage 450000 0.0375 0.2 15)
    (make-mortgage 400000 0.0375 0.2 30)
    (make-mortgage 400000 0.0375 0.2 15)])
-
-(def foo (first some-mortgages))
-
-(sm/defschema UIState {})
-
-(sm/defn draw-mortgage [m :- Mortgage]
-  (js/console.log m)
-  [:tr.mortgage
-   [:td (:house-price m)]
-   [:td (:apr m)]
-   [:td (:down-payment-percentage m)]
-   [:td (:num-years m)]
-   ]
-
-  )
-
-(defn draw-state [state]
-  [:table
-   [:tbody
-    [:tr
-     [:th "House Price"]
-     [:th "APR"]
-     [:th "% Down"]
-     [:th "Duration"]
-     ]
-    (for [[index m] (map-indexed vector (:mortgages state))]
-      ^{:key (str "mortgage-" index)} [draw-mortgage m])]]
-  )
-
-(defn draw-svg-example []
-  [:svg {:version "1.1"
-         :width   300
-         :height  200
-         :xmlns   "http://www.w3.org/2000/svg"}
-   [:rect {:x 50 :y 50 :width 50 :height 50}]]
-  )
-
-; ok so there'll be two sections - a table of just plain old numbers/data
-; one row per mortgage option
-; and a couple of bar graphs - one charting money-wasted, one charting monthly-payment
-; nice mouseover behavior highlights the relevant bars and the relevant row
 
 (def state (r/atom {:mortgages some-mortgages}))
 
