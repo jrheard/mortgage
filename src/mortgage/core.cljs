@@ -1,7 +1,9 @@
 (ns mortgage.core
   (:require [reagent.core :as r]
             [schema.core :as s])
-  (:require-macros [schema.core :as sm]))
+  (:require-macros [cljs.core.async.macros :refer [go go-loop]]
+                   [schema.core :as sm])
+  (:use [cljs.core.async :only [chan <! >! put!]]))
 
 ; paredit
 ; cmd+shift+j, cmd+shift+k - move right paren back/forth
@@ -16,7 +18,6 @@
 ; cmd-shift-r: start repl
 ; cmd-shift-l sends file to repl (equivalent of cpr in fireplace)
 ; cmd-shift-p sends current form to repl (equivalent of cpp in fireplace)
-; cmd-alt-e: view repl history
 
 ; documentation
 ; cmd-p: show parameters this function takes
@@ -38,7 +39,7 @@
 ; cmd-f3: view all bookmarks
 ; cmd-up: open navigation bar, interact w/ it with arrow keys; consider using instead of project browser
 ;
-; testing
+; testing (unsupported for cljs?)
 ; cmd-t: run tests in current ns
 ; cmd-shift-t: run test under caret
 ;
@@ -60,11 +61,19 @@
 ; per http://www.valuepenguin.com/average-cost-of-homeowners-insurance
 (def average-monthly-homeowners-insurance-payment 47.98)
 
+(def next-mortgage-id (atom 0))
+(defn get-next-mortgage-id []
+  (let [ret @next-mortgage-id]
+    (swap! next-mortgage-id inc)
+    ret))
+
+
 (sm/defschema Mortgage
   {:house-price             s/Int
    :apr                     s/Num
    :down-payment-percentage s/Num
-   :num-years               s/Int})
+   :num-years               s/Int
+   :id                      s/Int})
 
 (sm/defschema MonthlyPayment
   {:principal    s/Num
@@ -77,7 +86,8 @@
   {:house-price             house-price
    :apr                     apr
    :down-payment-percentage down-payment-percentage
-   :num-years               num-years})
+   :num-years               num-years
+   :id                      (get-next-mortgage-id)})
 
 (sm/defn get-down-payment :- s/Num
   [m :- Mortgage]
@@ -149,7 +159,9 @@
 
 ;;; UI
 
-(sm/defschema UIState {:mortgages [Mortgage]})
+(sm/defschema UIState {:mortgages         [Mortgage]
+                       :selected-mortgage Mortgage
+                       :ui-event-chan     s/Any})
 
 (sm/defn draw-bar-graph [y-axis-label :- s/Str
                          data-points :- [s/Num]]
@@ -162,18 +174,23 @@
            :x2           500 :y2 280
            :stroke       "black"
            :stroke-width 1}]
+
    [:text {:x 70 :y 235 :transform "rotate(270 75 230)"} y-axis-label]
    [:text {:x 90 :y 30 :text-anchor "end"} (str "$" (.toLocaleString (int (apply max data-points))))]
+
+
    (for [[index point] (map-indexed vector data-points)]
      (let [x (+ 110 (* index 50))
            height (* 250
                      (/ point (apply max data-points)))]
-       ^{:key (str "rect-" point)} [:rect {:x         (- x 50)
-                                           :y         280
-                                           :width     40
-                                           :transform (str "rotate(180 " x " " 280 ")")
-                                           ; TODO tooltip too
-                                           :height    height}]))])
+       ^{:key (str "rect-" point)} [:rect {:x              (- x 50)
+                                           :y              280
+                                           :width          40
+                                           :transform      (str "rotate(180 " x " " 280 ")")
+                                           :height         height
+                                           :on-mouse-enter #((-> % .-currentTarget js/console.log))
+
+                                           }]))])
 
 (sm/defn draw-money-wasted [state :- UIState]
   [draw-bar-graph "Money Wasted On Interest" (map (comp :interest total-price-breakdown) (:mortgages state))]
@@ -220,15 +237,15 @@
    (make-mortgage 400000 0.0375 0.2 30)
    (make-mortgage 400000 0.0375 0.2 15)])
 
-(def state (r/atom {:mortgages some-mortgages}))
+(defonce state (r/atom {:mortgages         some-mortgages
+                        :selected-mortgage nil
+                        :ui-event-chan     (chan)}))
 
 (defn ^:export main []
   (r/render-component [draw-state @state]
                       (js/document.getElementById "content")))
 
 (comment
-  (q/show-cats)
-
   (last
     (get-payments foo))
 
@@ -239,6 +256,7 @@
   (map total-mortgage-price some-mortgages)
 
   (map total-price-breakdown some-mortgages)
+  (map-indexed vector (map vector [1 2 3 4 5] ["a" "b" "c" "d" "e"]))
 
   (apply min-key :total
          (map total-price-breakdown some-mortgages))

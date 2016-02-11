@@ -1,36 +1,15 @@
 # mortgage
 
-FIXME: description
+## what the hell is this?
 
-## Installation
+a dumb program i wrote so i could get familiar with intellij+cursive
 
-Download from http://example.com/FIXME.
+## you could have just used excel instead of doing any of this
 
-## Usage
+yeah but
 
-FIXME: explanation
+## why did you write bar graph generation from scratch instead of just using a preexisting plain-js library via cljs
 
-    $ java -jar mortgage-0.1.0-standalone.jar [args]
+i think i want to use svg for my next toy project, and i've never used it before, so i wanted to get familiar with it
 
-## Options
-
-FIXME: listing of options this app accepts.
-
-## Examples
-
-...
-
-### Bugs
-
-...
-
-### Any Other Sections
-### That You Think
-### Might be Useful
-
-## License
-
-Copyright © 2016 FIXME
-
-Distributed under the Eclipse Public License either version 1.0 or (at
-your option) any later version.
+## ok

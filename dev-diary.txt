@@ -173,3 +173,25 @@ The further down an element is the more will be visible."
 - https://msdn.microsoft.com/en-us/library/gg193983(v=vs.85).aspx#Using_Canvas_AndOr_SVG
 great article on choosing between canvas and svg
 (most of today's notes have little relation to the mortgage project and are more about a possible BOI clone)
+
+====
+
+2/11/16
+
+i might need to end up reading a textbook on linear algebra sometime. i don't get matrices at all.
+
+took a while to wrap my head around the rotate() thing in svg.
+
+regular: +x to east, +y to south
+rotated 90: +x to south, +y to west
+rotated 180: +x to west, +y to north
+rotated 270: +x to north, +y to east
+
+got the bar graph's bars pointing in the right direction. next steps:
+
+* hover behavior - when you mouse over a bar (or a <tr>):
+  * draw the bar in orange
+  * draw the $ value on the bar in cool-looking text
+  * highlight the relevant <tr>
+
+* generate a ton of mortgages, from 400k-700k; have one pair of graphs for 30-years, another pair for 15-years. one big table though.
