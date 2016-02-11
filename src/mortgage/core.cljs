@@ -163,8 +163,11 @@
                        :selected-mortgage Mortgage
                        :ui-event-chan     s/Any})
 
+(sm/defschema DataPoint {:mortgage Mortgage
+                         :value    s/Num})
+
 (sm/defn draw-bar-graph [y-axis-label :- s/Str
-                         data-points :- [s/Num]]
+                         data-points :- [DataPoint]]
   [:svg {:width 500 :height 300}
    [:line {:x1           100 :y1 20
            :x2           100 :y2 280
@@ -176,13 +179,13 @@
            :stroke-width 1}]
 
    [:text {:x 70 :y 235 :transform "rotate(270 75 230)"} y-axis-label]
-   [:text {:x 90 :y 30 :text-anchor "end"} (str "$" (.toLocaleString (int (apply max data-points))))]
+   [:text {:x 90 :y 30 :text-anchor "end"} (str "$" (.toLocaleString (int (apply max (map :value data-points)))))]
 
 
    (for [[index point] (map-indexed vector data-points)]
      (let [x (+ 110 (* index 50))
            height (* 250
-                     (/ point (apply max data-points)))]
+                     (/ (:value point) (apply max (map :value data-points))))]
        ^{:key (str "rect-" point)} [:rect {:x              (- x 50)
                                            :y              280
                                            :width          40
@@ -193,11 +196,19 @@
                                            }]))])
 
 (sm/defn draw-money-wasted [state :- UIState]
-  [draw-bar-graph "Money Wasted On Interest" (map (comp :interest total-price-breakdown) (:mortgages state))]
+  [draw-bar-graph
+   "Money Wasted On Interest"
+   (for [m (:mortgages state)]
+     {:mortgage m
+      :value    (-> m total-price-breakdown :interest)})]
   )
 
 (sm/defn draw-monthly-payment [state :- UIState]
-  [draw-bar-graph "Total Monthly Payment" (map full-monthly-payment-amount (:mortgages state))]
+  [draw-bar-graph
+   "Total Monthly Payment"
+   (for [m (:mortgages state)]
+     {:mortgage m
+      :value (full-monthly-payment-amount m)})]
   )
 
 (sm/defn draw-mortgage [m :- Mortgage
