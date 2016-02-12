@@ -2,6 +2,11 @@ body {
 font-family: Helvetica, sans-serif;
 }
 
+div.graphs {
+width: 1000px;
+margin: 0 auto;
+}
+
 table {
 margin: 50px auto;
 width: 800px;

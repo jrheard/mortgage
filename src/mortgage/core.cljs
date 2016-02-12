@@ -208,18 +208,20 @@
                :transform (str "rotate(270 " x " " 280 ")")}
         (.toLocaleString (int (:value point)))]))])
 
-(sm/defn draw-money-wasted [state :- UIState]
+(sm/defn draw-money-wasted [mortgages :- [Mortgage]
+                            state :- UIState]
   [draw-bar-graph
    "Money Wasted On Interest"
-   (for [m (:mortgages state)]
+   (for [m mortgages]
      {:mortgage m
       :value    (-> m total-price-breakdown :interest)})
    state])
 
-(sm/defn draw-monthly-payment [state :- UIState]
+(sm/defn draw-monthly-payment [mortgages :- [Mortgage]
+                               state :- UIState]
   [draw-bar-graph
    "Total Monthly Payment"
-   (for [m (:mortgages state)]
+   (for [m mortgages]
      {:mortgage m
       :value    (full-monthly-payment-amount m)})
    state])
@@ -240,17 +242,25 @@
 (defn draw-state [state]
   (let [state @state]
     [:div.content
-     [draw-money-wasted state]
-     [draw-monthly-payment state]
-     [:table
-      [:tbody
-       [:tr
-        [:th "House Price"]
-        [:th "APR"]
-        [:th "% Down"]
-        [:th "Duration"]]
-       (for [[index m] (map-indexed vector (:mortgages state))]
-         ^{:key (str "mortgage-" index)} [draw-mortgage m state])]]]))
+     (let [mortgages (filter #(= (:num-years %) 30)
+                             (:mortgages state))]
+       [:div.graphs
+        [draw-money-wasted mortgages state]
+        [draw-monthly-payment mortgages state]])
+     (let [mortgages (filter #(= (:num-years %) 15)
+                             (:mortgages state))]
+       [:div.graphs
+        [draw-money-wasted mortgages state]
+        [draw-monthly-payment mortgages state]])
+    [:table
+     [:tbody
+      [:tr
+       [:th "House Price"]
+       [:th "APR"]
+       [:th "% Down"]
+       [:th "Duration"]]
+      (for [[index m] (map-indexed vector (:mortgages state))]
+        ^{:key (str "mortgage-" index)} [draw-mortgage m state])]] ] ) )
 
 ; ok so there'll be two sections - a table of just plain old numbers/data
 ; one row per mortgage option
@@ -260,10 +270,11 @@
 (def some-mortgages
   [(make-mortgage 550000 0.0325 0.2 30)
    (make-mortgage 500000 0.0325 0.2 30)
-   (make-mortgage 500000 0.0325 0.2 15)
    (make-mortgage 450000 0.0375 0.2 30)
-   (make-mortgage 450000 0.0375 0.2 15)
    (make-mortgage 400000 0.0375 0.2 30)
+   (make-mortgage 550000 0.0325 0.2 15)
+   (make-mortgage 500000 0.0325 0.2 15)
+   (make-mortgage 450000 0.0375 0.2 15)
    (make-mortgage 400000 0.0375 0.2 15)])
 
 (defonce state (r/atom {:mortgages         some-mortgages
