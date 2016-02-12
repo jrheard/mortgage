@@ -74,10 +74,13 @@
    :insurance    s/Num})
 
 (sm/defn make-mortgage :- Mortgage
-  [house-price apr down-payment-percentage num-years]
+  [house-price num-years]
   {:house-price             house-price
-   :apr                     apr
-   :down-payment-percentage down-payment-percentage
+   :apr                     (if (> (* house-price 0.8)
+                                   417000)
+                              0.0325
+                              0.0375)
+   :down-payment-percentage 0.2
    :num-years               num-years})
 
 (sm/defn get-down-payment :- s/Num
@@ -264,18 +267,16 @@
          ^{:key (str "mortgage-" index)} [draw-mortgage m state])]]]))
 
 (def some-mortgages
-  [(make-mortgage 550000 0.0325 0.2 30)
-   (make-mortgage 500000 0.0325 0.2 30)
-   (make-mortgage 450000 0.0375 0.2 30)
-   (make-mortgage 400000 0.0375 0.2 30)
-   (make-mortgage 550000 0.0325 0.2 15)
-   (make-mortgage 500000 0.0325 0.2 15)
-   (make-mortgage 450000 0.0375 0.2 15)
-   (make-mortgage 400000 0.0375 0.2 15)])
+  (apply concat
+         (for [duration [15 30]]
+           (for [increment-of-25k (range 19)]
+             (make-mortgage (+ 400000
+                               (* increment-of-25k 25000))
+                            duration)))))
 
-(defonce state (r/atom {:mortgages         some-mortgages
-                        :selected-mortgage nil
-                        :ui-event-chan     (chan)}))
+(def state (r/atom {:mortgages         some-mortgages
+                    :selected-mortgage nil
+                    :ui-event-chan     (chan)}))
 
 (defn handle-ui-events [ui-state]
   (go-loop []

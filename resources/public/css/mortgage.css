@@ -10,6 +10,8 @@ margin: 0 auto;
 table {
 margin: 50px auto;
 width: 800px;
+overflow-y: scroll;
+height: 500px;
 }
 
 th {
