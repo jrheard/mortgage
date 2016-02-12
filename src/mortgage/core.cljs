@@ -262,11 +262,6 @@
       (for [[index m] (map-indexed vector (:mortgages state))]
         ^{:key (str "mortgage-" index)} [draw-mortgage m state])]] ] ) )
 
-; ok so there'll be two sections - a table of just plain old numbers/data
-; one row per mortgage option
-; and a couple of bar graphs - one charting money-wasted, one charting monthly-payment
-; nice mouseover behavior highlights the relevant bars and the relevant row
-
 (def some-mortgages
   [(make-mortgage 550000 0.0325 0.2 30)
    (make-mortgage 500000 0.0325 0.2 30)
@@ -294,20 +289,3 @@
   (r/render-component [draw-state state]
                       (js/document.getElementById "content"))
   (handle-ui-events state))
-
-(comment
-  (last
-    (get-payments foo))
-
-  (total-mortgage-price foo)
-  (total-price-breakdown foo)
-
-  (map total-price-breakdown some-mortgages)
-  (map total-mortgage-price some-mortgages)
-
-  (map total-price-breakdown some-mortgages)
-  (map-indexed vector (map vector [1 2 3 4 5] ["a" "b" "c" "d" "e"]))
-
-  (apply min-key :total
-         (map total-price-breakdown some-mortgages))
-  )
