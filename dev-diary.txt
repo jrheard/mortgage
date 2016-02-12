@@ -201,3 +201,11 @@ having trouble with one thing, though - when you hover over a bar, if you hover 
 this is because the <text> isn't a child of the <rect>, it's just a separate shape that happens to be drawn on top of it.
 i'm not sure what the best way of solving that problem is. apparently svg has some container elements, but none of them was
 immediately clear to me. i cheated by just drawing a background rect and having selection-end events fire when *it's* moused over.
+
+ok i think i'm finished
+
+getting a production build was difficult, i'm pretty sure i did it wrong
+
+i can never get `lein cljsbuild once prod` to work, i always have to use auto and then make a whitespace change
+which seems completely retarded. i should google around to figure out why once never works for me
+TODO ^
