@@ -166,7 +166,7 @@
 (sm/defn draw-bar-graph [y-axis-label :- s/Str
                          data-points :- [DataPoint]
                          state]
-  [:svg {:width 700 :height 300}
+  [:svg {:width 520 :height 300}
    [:rect {:x              0
            :y              0
            :width          500
@@ -189,7 +189,7 @@
      (let [x (+ 110 (* index 30))
            height (* 250
                      (/ (:value point) (apply max (map :value data-points))))]
-       ^{:key (str "rect-" point)} [:rect.bar {:x              (- x 30)
+       ^{:key (str "rect-" point)} [:rect.bar {:x              (- x 20)
                                                :y              280
                                                :width          30
                                                :transform      (str "rotate(180 " x " " 280 ")")
@@ -207,7 +207,7 @@
            x (+ 110 (* index 30))]
        (when point
          [:text {:x         (+ x 10)
-                 :y         304
+                 :y         294
                  :class     "selected"
                  :transform (str "rotate(270 " x " " 280 ")")}
           (.toLocaleString (int (:value point)))])))])
@@ -246,11 +246,13 @@
 (defn draw-state [state]
   (let [state @state]
     [:div.content
+     [:h2 "30-year figures"]
      (let [mortgages (filter #(= (:num-years %) 30)
                              (:mortgages state))]
        [:div.graphs
         [draw-money-wasted mortgages state]
         [draw-monthly-payment mortgages state]])
+     [:h2 "15-year figures"]
      (let [mortgages (filter #(= (:num-years %) 15)
                              (:mortgages state))]
        [:div.graphs
@@ -263,13 +265,15 @@
         [:th "APR"]
         [:th "% Down"]
         [:th "Duration"]]
+       (when (:selected-mortgage state)
+         (draw-mortgage (:selected-mortgage state) state))
        (for [[index m] (map-indexed vector (:mortgages state))]
          ^{:key (str "mortgage-" index)} [draw-mortgage m state])]]]))
 
 (def some-mortgages
   (apply concat
          (for [duration [15 30]]
-           (for [increment-of-25k (range 19)]
+           (for [increment-of-25k (range 14)]
              (make-mortgage (+ 400000
                                (* increment-of-25k 25000))
                             duration)))))
