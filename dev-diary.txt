@@ -196,6 +196,8 @@ got the bar graph's bars pointing in the right direction. next steps:
 
 * generate a ton of mortgages, from 400k-700k; have one pair of graphs for 30-years, another pair for 15-years. one big table though.
 
-
 made a lot of progress on hover behavior, all three of those sub-asterisks are done.
-having trouble with one thing, though - when you hover over a bar, if you
+having trouble with one thing, though - when you hover over a bar, if you hover over its associated text, a selection-end event fires.
+this is because the <text> isn't a child of the <rect>, it's just a separate shape that happens to be drawn on top of it.
+i'm not sure what the best way of solving that problem is. apparently svg has some container elements, but none of them was
+immediately clear to me. i cheated by just drawing a background rect and having selection-end events fire when *it's* moused over.

@@ -1,3 +1,7 @@
+body {
+font-family: Helvetica, sans-serif;
+}
+
 table {
 margin: 50px auto;
 width: 800px;
@@ -9,6 +13,7 @@ font-weight: bold;
 
 td {
 text-align: center;
+padding: 2px 0;
 }
 
 rect.bar {
@@ -17,6 +22,7 @@ fill: #333;
 
 tr.selected {
 background: #DB8B57;
+color: white;
 }
 
 rect.selected {
@@ -26,9 +32,11 @@ fill: #DB8B57;
 tr.selected:hover,
 rect.selected:hover,
 text.selected:hover{
-cursor: pointer
+cursor: pointer;
 }
 
 text.selected {
-fill: #555;
+fill: white;
+font-weight: bold;
+font-size: 25px;
 }

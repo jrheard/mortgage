@@ -202,8 +202,8 @@
                                 data-points))
            index (.indexOf (to-array data-points) point)
            x (+ 110 (* index 50))]
-       [:text {:x         x
-               :y         317
+       [:text {:x         (+ x 10)
+               :y         320
                :class     "selected"
                :transform (str "rotate(270 " x " " 280 ")")}
         (.toLocaleString (int (:value point)))]))])
@@ -266,9 +266,9 @@
    (make-mortgage 400000 0.0375 0.2 30)
    (make-mortgage 400000 0.0375 0.2 15)])
 
-(def state (r/atom {:mortgages         some-mortgages
-                    :selected-mortgage nil
-                    :ui-event-chan     (chan)}))
+(defonce state (r/atom {:mortgages         some-mortgages
+                        :selected-mortgage nil
+                        :ui-event-chan     (chan)}))
 
 (defn handle-ui-events [ui-state]
   (go-loop []
