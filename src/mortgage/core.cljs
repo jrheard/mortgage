@@ -61,20 +61,11 @@
 ; per http://www.valuepenguin.com/average-cost-of-homeowners-insurance
 (def average-monthly-homeowners-insurance-payment 47.98)
 
-; TODO - why did i add this? delete it if it's unused
-(def next-mortgage-id (atom 0))
-(defn get-next-mortgage-id []
-  (let [ret @next-mortgage-id]
-    (swap! next-mortgage-id inc)
-    ret))
-
-
 (sm/defschema Mortgage
   {:house-price             s/Int
    :apr                     s/Num
    :down-payment-percentage s/Num
-   :num-years               s/Int
-   :id                      s/Int})
+   :num-years               s/Int})
 
 (sm/defschema MonthlyPayment
   {:principal    s/Num
@@ -87,8 +78,7 @@
   {:house-price             house-price
    :apr                     apr
    :down-payment-percentage down-payment-percentage
-   :num-years               num-years
-   :id                      (get-next-mortgage-id)})
+   :num-years               num-years})
 
 (sm/defn get-down-payment :- s/Num
   [m :- Mortgage]
@@ -167,6 +157,9 @@
 (sm/defschema DataPoint {:mortgage Mortgage
                          :value    s/Num})
 
+(sm/defn format-number [n :- s/Num]
+  (str "$" (.toLocaleString n)))
+
 (sm/defn draw-bar-graph [y-axis-label :- s/Str
                          data-points :- [DataPoint]
                          state]
@@ -181,23 +174,39 @@
            :stroke-width 1}]
 
    [:text {:x 70 :y 235 :transform "rotate(270 75 230)"} y-axis-label]
-   [:text {:x 90 :y 30 :text-anchor "end"} (str "$" (.toLocaleString (int (apply max (map :value data-points)))))]
+   [:text {:x 90 :y 30 :text-anchor "end"} (format-number (int (apply max (map :value data-points))))]
+
 
    (for [[index point] (map-indexed vector data-points)]
-         (let [x (+ 110 (* index 50))
-               height (* 250
-                         (/ (:value point) (apply max (map :value data-points))))]
-           ^{:key (str "rect-" point)} [:rect {:x              (- x 50)
-                                               :y              280
-                                               :width          40
-                                               :transform      (str "rotate(180 " x " " 280 ")")
-                                               :height         height
-                                               :class          (when (= (:selected-mortgage state) (:mortgage point))
-                                                                 "selected")
-                                               :on-mouse-enter #(put! (:ui-event-chan state) {:type     :selection-start
-                                                                                              :mortgage (:mortgage point)})
-                                               :on-mouse-leave #(put! (:ui-event-chan state) {:type :selection-end})
-                                               }]))])
+     (let [x (+ 110 (* index 50))
+           height (* 250
+                     (/ (:value point) (apply max (map :value data-points))))]
+       ^{:key (str "rect-" point)} [:rect {:x              (- x 50)
+                                           :y              280
+                                           :width          40
+                                           :transform      (str "rotate(180 " x " " 280 ")")
+                                           :height         height
+                                           :class          (when (= (:selected-mortgage state) (:mortgage point))
+                                                             "selected")
+                                           :on-mouse-over #(put! (:ui-event-chan state) {:type     :selection-start
+                                                                                          :mortgage (:mortgage point)})
+                                           :on-mouse-leave #(put! (:ui-event-chan state) {:type :selection-end})
+                                           }]))
+
+   (when (:selected-mortgage state)
+     (let [point (first (filter #(= (:mortgage %)
+                                    (:selected-mortgage state))
+                                data-points))
+           index (.indexOf (to-array data-points) point)
+           x (+ 110 (* index 50))]
+       (js/console.log index)
+       [:text {:x x
+               :y 317
+               :transform (str "rotate(270 " x " " 280 ")")}
+        (.toLocaleString (int (:value point)))
+        ])
+     )
+   ])
 
 (sm/defn draw-money-wasted [state :- UIState]
   [draw-bar-graph
