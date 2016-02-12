@@ -163,6 +163,24 @@
 (sm/defn format-number [n :- s/Num]
   (str "$" (.toLocaleString n)))
 
+(sm/defn draw-bar [point :- DataPoint
+                   offset :- s/Int
+                   max-value :- s/Int
+                   state :- UIState]
+  (js/console.log "drawing bar")
+  (let [x (+ 110 (* offset 30))
+        height (* 250
+                  (/ (:value point) max-value))]
+    [:rect.bar {:x              (- x 20)
+                :y              280
+                :width          30
+                :transform      (str "rotate(180 " x " " 280 ")")
+                :height         height
+                :class          (when (= (:selected-mortgage state) (:mortgage point))
+                                  "selected")
+                :on-mouse-enter #(put! (:ui-event-chan state) {:type     :selection-start
+                                                               :mortgage (:mortgage point)})}]))
+
 (sm/defn draw-bar-graph [y-axis-label :- s/Str
                          data-points :- [DataPoint]
                          state]
@@ -186,18 +204,7 @@
    [:text {:x 90 :y 30 :text-anchor "end"} (format-number (int (apply max (map :value data-points))))]
 
    (for [[index point] (map-indexed vector data-points)]
-     (let [x (+ 110 (* index 30))
-           height (* 250
-                     (/ (:value point) (apply max (map :value data-points))))]
-       ^{:key (str "rect-" point)} [:rect.bar {:x              (- x 20)
-                                               :y              280
-                                               :width          30
-                                               :transform      (str "rotate(180 " x " " 280 ")")
-                                               :height         height
-                                               :class          (when (= (:selected-mortgage state) (:mortgage point))
-                                                                 "selected")
-                                               :on-mouse-enter #(put! (:ui-event-chan state) {:type     :selection-start
-                                                                                              :mortgage (:mortgage point)})}]))
+       ^{:key (str "rect-" index)} [draw-bar point index (apply max (map :value data-points)) state])
 
    (when (:selected-mortgage state)
      (let [point (first (filter #(= (:mortgage %)

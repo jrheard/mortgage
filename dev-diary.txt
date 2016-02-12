@@ -209,3 +209,13 @@ getting a production build was difficult, i'm pretty sure i did it wrong
 i can never get `lein cljsbuild once prod` to work, i always have to use auto and then make a whitespace change
 which seems completely retarded. i should google around to figure out why once never works for me
 TODO ^
+
+====
+
+2/12/16
+
+this performance problem is bugging me. if you mouse over all the bars real fast, the highlighting doesn't keep up to realtime.
+i think it's because i have this one bigass draw-bar-graph function that returns a big list.
+what if i had it return a list with elements like [draw-bar foo bar baz] ? would that level of granularity help reagent out performance-wise?
+
+nope, that didn't help. all four graphs are redrawn from scratch whenever anything is highlighted/unhighlighted.
