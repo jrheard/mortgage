@@ -3,7 +3,7 @@ font-family: Helvetica, sans-serif;
 }
 
 div.graphs {
-width: 1000px;
+width: 1400px;
 margin: 0 auto;
 }
 
@@ -23,6 +23,7 @@ padding: 2px 0;
 
 rect.bar {
 fill: #333;
+stroke: white;
 }
 
 tr.selected {

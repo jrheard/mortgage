@@ -163,7 +163,7 @@
 (sm/defn draw-bar-graph [y-axis-label :- s/Str
                          data-points :- [DataPoint]
                          state]
-  [:svg {:width 500 :height 300}
+  [:svg {:width 700 :height 300}
    [:rect {:x              0
            :y              0
            :width          500
@@ -175,7 +175,7 @@
            :stroke       "black"
            :stroke-width 1}]
    [:line {:x1           100 :y1 280
-           :x2           500 :y2 280
+           :x2           700 :y2 280
            :stroke       "black"
            :stroke-width 1}]
 
@@ -183,12 +183,12 @@
    [:text {:x 90 :y 30 :text-anchor "end"} (format-number (int (apply max (map :value data-points))))]
 
    (for [[index point] (map-indexed vector data-points)]
-     (let [x (+ 110 (* index 50))
+     (let [x (+ 110 (* index 30))
            height (* 250
                      (/ (:value point) (apply max (map :value data-points))))]
-       ^{:key (str "rect-" point)} [:rect.bar {:x              (- x 50)
+       ^{:key (str "rect-" point)} [:rect.bar {:x              (- x 30)
                                                :y              280
-                                               :width          40
+                                               :width          30
                                                :transform      (str "rotate(180 " x " " 280 ")")
                                                :height         height
                                                :class          (when (= (:selected-mortgage state) (:mortgage point))
@@ -201,12 +201,13 @@
                                     (:selected-mortgage state))
                                 data-points))
            index (.indexOf (to-array data-points) point)
-           x (+ 110 (* index 50))]
-       [:text {:x         (+ x 10)
-               :y         320
-               :class     "selected"
-               :transform (str "rotate(270 " x " " 280 ")")}
-        (.toLocaleString (int (:value point)))]))])
+           x (+ 110 (* index 30))]
+       (when point
+         [:text {:x         (+ x 10)
+                 :y         304
+                 :class     "selected"
+                 :transform (str "rotate(270 " x " " 280 ")")}
+          (.toLocaleString (int (:value point)))])))])
 
 (sm/defn draw-money-wasted [mortgages :- [Mortgage]
                             state :- UIState]
@@ -252,15 +253,15 @@
        [:div.graphs
         [draw-money-wasted mortgages state]
         [draw-monthly-payment mortgages state]])
-    [:table
-     [:tbody
-      [:tr
-       [:th "House Price"]
-       [:th "APR"]
-       [:th "% Down"]
-       [:th "Duration"]]
-      (for [[index m] (map-indexed vector (:mortgages state))]
-        ^{:key (str "mortgage-" index)} [draw-mortgage m state])]] ] ) )
+     [:table
+      [:tbody
+       [:tr
+        [:th "House Price"]
+        [:th "APR"]
+        [:th "% Down"]
+        [:th "Duration"]]
+       (for [[index m] (map-indexed vector (:mortgages state))]
+         ^{:key (str "mortgage-" index)} [draw-mortgage m state])]]]))
 
 (def some-mortgages
   [(make-mortgage 550000 0.0325 0.2 30)
