@@ -195,3 +195,7 @@ got the bar graph's bars pointing in the right direction. next steps:
   * highlight the relevant <tr>
 
 * generate a ton of mortgages, from 400k-700k; have one pair of graphs for 30-years, another pair for 15-years. one big table though.
+
+
+made a lot of progress on hover behavior, all three of those sub-asterisks are done.
+having trouble with one thing, though - when you hover over a bar, if you

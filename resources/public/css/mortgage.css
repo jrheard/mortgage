@@ -1,18 +1,3 @@
-/*
-.mortgage {
-overflow: hidden;
-display: block;
-margin: 30px auto;
-width: 1400px;
-}
-
-div.mortgage > div {
-float: left;
-width: 300px;
-}
-*/
-
-
 table {
 margin: 50px auto;
 width: 800px;
@@ -26,15 +11,24 @@ td {
 text-align: center;
 }
 
+rect.bar {
+fill: #333;
+}
+
 tr.selected {
-background: orange;
+background: #DB8B57;
 }
 
 rect.selected {
-fill: orange;
+fill: #DB8B57;
 }
 
 tr.selected:hover,
-rect.selected:hover {
+rect.selected:hover,
+text.selected:hover{
 cursor: pointer
+}
+
+text.selected {
+fill: #555;
 }

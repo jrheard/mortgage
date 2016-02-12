@@ -164,6 +164,12 @@
                          data-points :- [DataPoint]
                          state]
   [:svg {:width 500 :height 300}
+   [:rect {:x              0
+           :y              0
+           :width          500
+           :height         300
+           :fill           "#FFF"
+           :on-mouse-enter #(put! (:ui-event-chan state) {:type :selection-end})}]
    [:line {:x1           100 :y1 20
            :x2           100 :y2 280
            :stroke       "black"
@@ -176,22 +182,19 @@
    [:text {:x 70 :y 235 :transform "rotate(270 75 230)"} y-axis-label]
    [:text {:x 90 :y 30 :text-anchor "end"} (format-number (int (apply max (map :value data-points))))]
 
-
    (for [[index point] (map-indexed vector data-points)]
      (let [x (+ 110 (* index 50))
            height (* 250
                      (/ (:value point) (apply max (map :value data-points))))]
-       ^{:key (str "rect-" point)} [:rect {:x              (- x 50)
-                                           :y              280
-                                           :width          40
-                                           :transform      (str "rotate(180 " x " " 280 ")")
-                                           :height         height
-                                           :class          (when (= (:selected-mortgage state) (:mortgage point))
-                                                             "selected")
-                                           :on-mouse-over #(put! (:ui-event-chan state) {:type     :selection-start
-                                                                                          :mortgage (:mortgage point)})
-                                           :on-mouse-leave #(put! (:ui-event-chan state) {:type :selection-end})
-                                           }]))
+       ^{:key (str "rect-" point)} [:rect.bar {:x              (- x 50)
+                                               :y              280
+                                               :width          40
+                                               :transform      (str "rotate(180 " x " " 280 ")")
+                                               :height         height
+                                               :class          (when (= (:selected-mortgage state) (:mortgage point))
+                                                                 "selected")
+                                               :on-mouse-enter #(put! (:ui-event-chan state) {:type     :selection-start
+                                                                                              :mortgage (:mortgage point)})}]))
 
    (when (:selected-mortgage state)
      (let [point (first (filter #(= (:mortgage %)
@@ -199,14 +202,11 @@
                                 data-points))
            index (.indexOf (to-array data-points) point)
            x (+ 110 (* index 50))]
-       (js/console.log index)
-       [:text {:x x
-               :y 317
+       [:text {:x         x
+               :y         317
+               :class     "selected"
                :transform (str "rotate(270 " x " " 280 ")")}
-        (.toLocaleString (int (:value point)))
-        ])
-     )
-   ])
+        (.toLocaleString (int (:value point)))]))])
 
 (sm/defn draw-money-wasted [state :- UIState]
   [draw-bar-graph
@@ -214,8 +214,7 @@
    (for [m (:mortgages state)]
      {:mortgage m
       :value    (-> m total-price-breakdown :interest)})
-   state]
-  )
+   state])
 
 (sm/defn draw-monthly-payment [state :- UIState]
   [draw-bar-graph
@@ -223,8 +222,7 @@
    (for [m (:mortgages state)]
      {:mortgage m
       :value    (full-monthly-payment-amount m)})
-   state]
-  )
+   state])
 
 (sm/defn draw-mortgage [m :- Mortgage
                         state :- UIState]
@@ -238,7 +236,6 @@
    [:td (:apr m)]
    [:td (:down-payment-percentage m)]
    [:td (:num-years m)]])
-
 
 (defn draw-state [state]
   (let [state @state]
@@ -285,8 +282,7 @@
 (defn ^:export main []
   (r/render-component [draw-state state]
                       (js/document.getElementById "content"))
-  (handle-ui-events state)
-  )
+  (handle-ui-events state))
 
 (comment
   (last
