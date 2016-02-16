@@ -3,7 +3,7 @@
             [schema.core :as s])
   (:require-macros [cljs.core.async.macros :refer [go go-loop]]
                    [schema.core :as sm])
-  (:use [cljs.core.async :only [chan <! >! put!]]))
+  (:use [cljs.core.async :only [chan <! >! put! timeout]]))
 
 ; paredit
 ; cmd+shift+j, cmd+shift+k - move right paren back/forth
@@ -178,19 +178,13 @@
                 :height         height
                 :class          (when (= (:selected-mortgage state) (:mortgage point))
                                   "selected")
-                :on-mouse-enter #(put! (:ui-event-chan state) {:type     :selection-start
-                                                               :mortgage (:mortgage point)})}]))
+                }]))
 
 (sm/defn draw-bar-graph [y-axis-label :- s/Str
                          data-points :- [DataPoint]
                          state]
   [:svg {:width 520 :height 300}
-   [:rect {:x              0
-           :y              0
-           :width          500
-           :height         300
-           :fill           "#FFF"
-           :on-mouse-enter #(put! (:ui-event-chan state) {:type :selection-end})}]
+
    [:line {:x1           100 :y1 20
            :x2           100 :y2 280
            :stroke       "black"
@@ -212,7 +206,8 @@
                                 data-points))
            index (.indexOf (to-array data-points) point)
            x (+ 110 (* index 30))]
-       (when point
+       (when false
+
          [:text {:x         (+ x 10)
                  :y         294
                  :class     "selected"
@@ -293,6 +288,7 @@
   (go-loop []
     (let [state @ui-state
           msg (<! (:ui-event-chan state))]
+      (js/console.log "handling an event")
       (condp = (:type msg)
         :selection-start (swap! ui-state assoc :selected-mortgage (:mortgage msg))
         :selection-end (swap! ui-state assoc :selected-mortgage nil))
@@ -301,4 +297,13 @@
 (defn ^:export main []
   (r/render-component [draw-state state]
                       (js/document.getElementById "content"))
+  (go-loop []
+    (<! (timeout 500))
+    (js/console.log "1")
+    (swap! state assoc :selected-mortgage (first (:mortgages @state)))
+    (<! (timeout 500))
+    (js/console.log "2")
+    (swap! state assoc :selected-mortgage nil)
+    (recur)
+    )
   (handle-ui-events state))
