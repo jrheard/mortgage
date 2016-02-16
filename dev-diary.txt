@@ -219,3 +219,20 @@ i think it's because i have this one bigass draw-bar-graph function that returns
 what if i had it return a list with elements like [draw-bar foo bar baz] ? would that level of granularity help reagent out performance-wise?
 
 nope, that didn't help. all four graphs are redrawn from scratch whenever anything is highlighted/unhighlighted.
+
+====
+
+2/16/16
+
+i had a few hypotheses re: the above perf problem.
+* maybe something about the event handler functions existing was causing weird reagent rerender-everything behavior
+* maybe the big background rect somehow complicated things
+* maybe the text being drawn on top of the bars somehow complicated things
+
+spun up branch `attempt-to-triage-perf-problem`, in which i ruled out all of these things.
+so the current situation is still: whenever the `state` atom changes, either by gaining or losing a :selected-mortgage,
+all bars of all graphs on the screen are redrawn from scratch. (TODO: what about the <table>? is it redrawn from scratch too?)
+
+i guess next step is to read reagent/react source code because clearly i don't understand how these tools are supposed to work.
+writing code and going "la la la reagent will optimize that" is bad strategy
+
