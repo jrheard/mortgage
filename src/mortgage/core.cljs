@@ -163,41 +163,32 @@
 (sm/defn format-number [n :- s/Num]
   (str "$" (.toLocaleString n)))
 
-(sm/defn draw-bar [point :- DataPoint
+(sm/defn draw-bar [mortgage :- Mortgage
                    offset :- s/Int
                    max-value :- s/Int
-                   state :- UIState]
+                   state]
   (js/console.log "drawing bar")
   (let [x (+ 110 (* offset 30))
         height (* 250
-                  (/ (:value point) max-value))]
+                  (/ (:house-price mortgage) max-value))]
     [:rect.bar {:x              (- x 20)
                 :y              280
                 :width          30
                 :transform      (str "rotate(180 " x " " 280 ")")
                 :height         height}]))
 
-(sm/defn draw-bar-graph [y-axis-label :- s/Str
-                         data-points :- [DataPoint]
-                         state]
+(sm/defn draw-bar-graph [mortgages :- [Mortgage] state]
   [:svg {:width 520 :height 300}
 
-   (for [[index point] (map-indexed vector data-points)]
-     ^{:key (str "rect-" index (point :value))} [draw-bar point index (apply max (map :value data-points)) state])
+   (for [[index point] (map-indexed vector mortgages)]
+     ^{:key (str "rect-" index)} [draw-bar point index (apply max (map :house-price mortgages)) state])
 
    ])
 
 (sm/defn draw-monthly-payment [mortgages :- [Mortgage]
                                state :- UIState]
   [draw-bar-graph
-   "Total Monthly Payment"
-   [{:mortgage (first mortgages)
-     :value    (full-monthly-payment-amount (first mortgages))}
-    {:mortgage (second mortgages)
-     :value    (full-monthly-payment-amount (second mortgages))}
-    {:mortgage (nth mortgages 3)
-     :value    (full-monthly-payment-amount (nth mortgages 3))}
-    ]
+   (take 3 mortgages)
    state])
 
 (defn draw-state [state]
@@ -233,4 +224,5 @@
 
 (comment
   (swap! state update-in [:mortgages 0 :house-price] (fn [x] (rand-int 500000)))
+
   )

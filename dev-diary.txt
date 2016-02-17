@@ -236,3 +236,6 @@ all bars of all graphs on the screen are redrawn from scratch. (TODO: what about
 i guess next step is to read reagent/react source code because clearly i don't understand how these tools are supposed to work.
 writing code and going "la la la reagent will optimize that" is bad strategy
 
+...ok it's the reliance on `state` that's fucking everything up
+i can't pass it that far down
+makes sense
