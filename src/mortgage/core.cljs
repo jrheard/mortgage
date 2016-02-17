@@ -176,8 +176,6 @@
                 :width          30
                 :transform      (str "rotate(180 " x " " 280 ")")
                 :height         height
-                :class          (when (= (:selected-mortgage state) (:mortgage point))
-                                  "selected")
                 :on-mouse-enter #(put! (:ui-event-chan state) {:type     :selection-start
                                                                :mortgage (:mortgage point)})}]))
 
@@ -185,48 +183,11 @@
                          data-points :- [DataPoint]
                          state]
   [:svg {:width 520 :height 300}
-   [:rect {:x              0
-           :y              0
-           :width          500
-           :height         300
-           :fill           "#FFF"
-           :on-mouse-enter #(put! (:ui-event-chan state) {:type :selection-end})}]
-   [:line {:x1           100 :y1 20
-           :x2           100 :y2 280
-           :stroke       "black"
-           :stroke-width 1}]
-   [:line {:x1           100 :y1 280
-           :x2           700 :y2 280
-           :stroke       "black"
-           :stroke-width 1}]
-
-   [:text {:x 70 :y 235 :transform "rotate(270 75 230)"} y-axis-label]
-   [:text {:x 90 :y 30 :text-anchor "end"} (format-number (int (apply max (map :value data-points))))]
 
    (for [[index point] (map-indexed vector data-points)]
-       ^{:key (str "rect-" index (point :value))} [draw-bar point index (apply max (map :value data-points)) state])
+     ^{:key (str "rect-" index (point :value))} [draw-bar point index (apply max (map :value data-points)) state])
 
-   (when (:selected-mortgage state)
-     (let [point (first (filter #(= (:mortgage %)
-                                    (:selected-mortgage state))
-                                data-points))
-           index (.indexOf (to-array data-points) point)
-           x (+ 110 (* index 30))]
-       (when point
-         [:text {:x         (+ x 10)
-                 :y         294
-                 :class     "selected"
-                 :transform (str "rotate(270 " x " " 280 ")")}
-          (.toLocaleString (int (:value point)))])))])
-
-(sm/defn draw-money-wasted [mortgages :- [Mortgage]
-                            state :- UIState]
-  [draw-bar-graph
-   "Money Wasted On Interest"
-   (for [m mortgages]
-     {:mortgage m
-      :value    (-> m total-price-breakdown :interest)})
-   state])
+   ])
 
 (sm/defn draw-monthly-payment [mortgages :- [Mortgage]
                                state :- UIState]
@@ -237,19 +198,6 @@
       :value    (full-monthly-payment-amount m)})
    state])
 
-(sm/defn draw-mortgage [m :- Mortgage
-                        state :- UIState]
-  [:tr.mortgage
-   {:on-mouse-enter #(put! (:ui-event-chan state) {:type     :selection-start
-                                                   :mortgage m})
-    :on-mouse-leave #(put! (:ui-event-chan state) {:type :selection-end})
-    :class          (when (= m (:selected-mortgage state))
-                      "selected")}
-   [:td (:house-price m)]
-   [:td (:apr m)]
-   [:td (:down-payment-percentage m)]
-   [:td (:num-years m)]])
-
 (defn draw-state [state]
   (let [state @state]
     [:div.content
@@ -257,33 +205,16 @@
      (let [mortgages (filter #(= (:num-years %) 30)
                              (:mortgages state))]
        [:div.graphs
-        [draw-money-wasted mortgages state]
         [draw-monthly-payment mortgages state]])
-     [:h2 "15-year figures"]
-     (let [mortgages (filter #(= (:num-years %) 15)
-                             (:mortgages state))]
-       [:div.graphs
-        [draw-money-wasted mortgages state]
-        [draw-monthly-payment mortgages state]])
-     [:table
-      [:tbody
-       [:tr
-        [:th "House Price"]
-        [:th "APR"]
-        [:th "% Down"]
-        [:th "Duration"]]
-       (when (:selected-mortgage state)
-         [draw-mortgage (:selected-mortgage state) state])
-       (for [[index m] (map-indexed vector (:mortgages state))]
-         ^{:key (str "mortgage-" index)} [draw-mortgage m state])]]]))
+     ]))
 
 (def some-mortgages
-  (apply concat
-         (for [duration [15 30]]
-           (for [increment-of-25k (range 14)]
-             (make-mortgage (+ 400000
-                               (* increment-of-25k 25000))
-                            duration)))))
+  (apply vector (apply concat
+                       (for [duration [15 30]]
+                         (for [increment-of-25k (range 14)]
+                           (make-mortgage (+ 400000
+                                             (* increment-of-25k 25000))
+                                          duration))))))
 
 (def state (r/atom {:mortgages         some-mortgages
                     :selected-mortgage nil
@@ -302,3 +233,7 @@
   (r/render-component [draw-state state]
                       (js/document.getElementById "content"))
   (handle-ui-events state))
+
+(comment
+  (swap! state update-in [:mortgages 0 :house-price] (fn [x] (rand-int 200000)))
+  )
