@@ -175,9 +175,7 @@
                 :y              280
                 :width          30
                 :transform      (str "rotate(180 " x " " 280 ")")
-                :height         height
-                :on-mouse-enter #(put! (:ui-event-chan state) {:type     :selection-start
-                                                               :mortgage (:mortgage point)})}]))
+                :height         height}]))
 
 (sm/defn draw-bar-graph [y-axis-label :- s/Str
                          data-points :- [DataPoint]
@@ -193,20 +191,19 @@
                                state :- UIState]
   [draw-bar-graph
    "Total Monthly Payment"
-   (for [m mortgages]
-     {:mortgage m
-      :value    (full-monthly-payment-amount m)})
+   [{:mortgage (first mortgages)
+     :value    (full-monthly-payment-amount (first mortgages))}
+    {:mortgage (second mortgages)
+     :value    (full-monthly-payment-amount (second mortgages))}
+    {:mortgage (nth mortgages 3)
+     :value    (full-monthly-payment-amount (nth mortgages 3))}
+    ]
    state])
 
 (defn draw-state [state]
   (let [state @state]
-    [:div.content
-     [:h2 "30-year figures"]
-     (let [mortgages (filter #(= (:num-years %) 30)
-                             (:mortgages state))]
-       [:div.graphs
-        [draw-monthly-payment mortgages state]])
-     ]))
+    [draw-monthly-payment (:mortgages state) state])
+  )
 
 (def some-mortgages
   (apply vector (apply concat
@@ -235,5 +232,5 @@
   (handle-ui-events state))
 
 (comment
-  (swap! state update-in [:mortgages 0 :house-price] (fn [x] (rand-int 200000)))
+  (swap! state update-in [:mortgages 0 :house-price] (fn [x] (rand-int 500000)))
   )
