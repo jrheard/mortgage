@@ -204,7 +204,7 @@
    [:text {:x 90 :y 30 :text-anchor "end"} (format-number (int (apply max (map :value data-points))))]
 
    (for [[index point] (map-indexed vector data-points)]
-       ^{:key (str "rect-" index)} [draw-bar point index (apply max (map :value data-points)) state])
+       ^{:key (str "rect-" index (point :value))} [draw-bar point index (apply max (map :value data-points)) state])
 
    (when (:selected-mortgage state)
      (let [point (first (filter #(= (:mortgage %)
@@ -273,7 +273,7 @@
         [:th "% Down"]
         [:th "Duration"]]
        (when (:selected-mortgage state)
-         (draw-mortgage (:selected-mortgage state) state))
+         [draw-mortgage (:selected-mortgage state) state])
        (for [[index m] (map-indexed vector (:mortgages state))]
          ^{:key (str "mortgage-" index)} [draw-mortgage m state])]]]))
 
