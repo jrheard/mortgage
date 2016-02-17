@@ -204,7 +204,7 @@
    [:text {:x 90 :y 30 :text-anchor "end"} (format-number (int (apply max (map :value data-points))))]
 
    (for [[index point] (map-indexed vector data-points)]
-       ^{:key (str "rect-" index)} [draw-bar point index (apply max (map :value data-points)) state])
+     ^{:key (str "rect-" index)} [draw-bar point index (apply max (map :value data-points)) state])
 
    (when (:selected-mortgage state)
      (let [point (first (filter #(= (:mortgage %)
@@ -298,7 +298,41 @@
         :selection-end (swap! ui-state assoc :selected-mortgage nil))
       (recur))))
 
+
+
+
+
+
+
+(def demo-state (r/atom [1 2 3]))
+
+(defn draw-demo-item [item index]
+  (js/console.log "draw-demo-item " item)
+  ^{:key (str "blatblat-" index)} [:svg
+                                   [:rect {:x 0 :y (* 50 index) :width 20 :height 20}]
+                                   [:text {:x 5 :y (+ 15 (* 50 index)) :fill "white"} item]])
+
+(defn draw-demo-state [demo-state]
+  (js/console.log "demo-state")
+  (let [demo-state @demo-state]
+    [:svg {:width 500 :height 500}
+     (for [[index item] (map-indexed vector demo-state)]
+       [draw-demo-item item index])])
+  )
+
+
 (defn ^:export main []
-  (r/render-component [draw-state state]
+  #_(r/render-component [draw-state state]
+                        (js/document.getElementById "content"))
+  #_(handle-ui-events state)
+
+
+  (r/render-component [draw-demo-state demo-state]
                       (js/document.getElementById "content"))
-  (handle-ui-events state))
+
+  )
+
+(comment
+  (swap! demo-state assoc 0 10)
+
+  )

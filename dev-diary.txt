@@ -236,3 +236,8 @@ all bars of all graphs on the screen are redrawn from scratch. (TODO: what about
 i guess next step is to read reagent/react source code because clearly i don't understand how these tools are supposed to work.
 writing code and going "la la la reagent will optimize that" is bad strategy
 
+ok, on branch `perf-issue` (i know i know) i was able to repro this minimally.
+why couldn't i get it to repro in the cljs-sandbox project?
+
+aha - in this minimal repro, the issue was me doing (draw-thing foo) instead of [draw-thing foo].
+i don't think that's what's going on in the main mortgage program, though. gotta keep digging.
