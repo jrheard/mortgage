@@ -304,20 +304,20 @@
 
 
 
-(def demo-state (r/atom [1 2 3]))
+(def demo-state (r/atom {:mortgages (apply vector some-mortgages)}))
 
 (defn draw-demo-item [item index]
-  (js/console.log "draw-demo-item " item)
-  ^{:key (str "blatblat-" index)} [:svg
-                                   [:rect {:x 0 :y (* 50 index) :width 20 :height 20}]
-                                   [:text {:x 5 :y (+ 15 (* 50 index)) :fill "white"} item]])
+  (js/console.log "draw-demo-item")
+  [:svg
+   [:rect {:x 0 :y (* 50 index) :width 200 :height 20}]
+   [:text {:x 5 :y (+ 15 (* 50 index)) :fill "white"} (:house-price item)]])
 
 (defn draw-demo-state [demo-state]
   (js/console.log "demo-state")
   (let [demo-state @demo-state]
     [:svg {:width 500 :height 500}
-     (for [[index item] (map-indexed vector demo-state)]
-       [draw-demo-item item index])])
+     (for [[index item] (map-indexed vector (demo-state :mortgages))]
+       ^{:key (str "blatblat-" index)} [draw-demo-item item index])])
   )
 
 
@@ -333,6 +333,7 @@
   )
 
 (comment
-  (swap! demo-state assoc 0 10)
+  (swap! demo-state assoc-in [:numbers 0] 10)
 
+  (swap! demo-state assoc-in [:mortgages 0] (last some-mortgages))
   )
