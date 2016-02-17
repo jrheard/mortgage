@@ -236,3 +236,19 @@ all bars of all graphs on the screen are redrawn from scratch. (TODO: what about
 i guess next step is to read reagent/react source code because clearly i don't understand how these tools are supposed to work.
 writing code and going "la la la reagent will optimize that" is bad strategy
 
+ok i haven't gotten around to doing that but i poked around all day trying to repro the issue and i think i found it
+
+i have lots of code that looks like [draw-bar data-point something-else state]
+
+and because `state` is different every time it's changed, every [draw-bar] list is different and has to be recomputed.
+
+so it looks like the way to reason about reagent is:
+to use it, you write a bunch of functions that return vectors
+often those vectors will look a lot like function calls, eg [draw-bar thing other-thing] instead of (draw-bar thing other-thing)
+and it looks like, when your app's state changes, reagent will call a vector as a function (how does it know to do this?) iff
+its args have changed in the meantime.
+so if you had a vector that used to look like [draw-bar 123 false] and now looks like [draw-bar 123 true], it'll get called/recomputed.
+but if you had a vector that used to look like [draw-bar 123] and still looks like [draw-bar 123], it will *not* be reevaluated.
+and that is how to reason about reagent/performance.
+i think.
+

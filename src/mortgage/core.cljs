@@ -163,10 +163,12 @@
 (sm/defn format-number [n :- s/Num]
   (str "$" (.toLocaleString n)))
 
+; XXXXXXXXX THIS CANNOT TAKE A STATE ARG
 (sm/defn draw-bar [point :- DataPoint
                    offset :- s/Int
                    max-value :- s/Int
-                   state :- UIState]
+                   state
+                   ]
   (js/console.log "drawing bar")
   (let [x (+ 110 (* offset 30))
         height (* 250
