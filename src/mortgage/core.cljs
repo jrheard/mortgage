@@ -163,6 +163,11 @@
 (sm/defn format-number [n :- s/Num]
   (str "$" (.toLocaleString n)))
 
+;; HELLO seriously everything below here is awful, don't look at it
+;; i was trying to debug a performance issue and changed the code until i'd resolved it and understood
+;; what the issue was, and at this point it's not worth the time to unfuck the code because i'm done with this project
+;; i promise my code is not usually this bad, don't look at the stuff below
+
 (sm/defn draw-bar [point :- DataPoint
                    offset :- s/Int
                    max-value :- s/Int
