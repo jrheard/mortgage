@@ -163,11 +163,11 @@
 (sm/defn format-number [n :- s/Num]
   (str "$" (.toLocaleString n)))
 
-; XXXXXXXXX THIS CANNOT TAKE A STATE ARG
 (sm/defn draw-bar [point :- DataPoint
                    offset :- s/Int
                    max-value :- s/Int
-                   state
+                   is-selected-mortgage :- s/Bool
+                   ui-event-chan
                    ]
   (js/console.log "drawing bar")
   (let [x (+ 110 (* offset 30))
@@ -178,21 +178,22 @@
                 :width          30
                 :transform      (str "rotate(180 " x " " 280 ")")
                 :height         height
-                :class          (when (= (:selected-mortgage state) (:mortgage point))
+                :class          (when is-selected-mortgage
                                   "selected")
-                :on-mouse-enter #(put! (:ui-event-chan state) {:type     :selection-start
-                                                               :mortgage (:mortgage point)})}]))
+                :on-mouse-enter #(put! ui-event-chan {:type     :selection-start
+                                                      :mortgage (:mortgage point)})}]))
 
 (sm/defn draw-bar-graph [y-axis-label :- s/Str
                          data-points :- [DataPoint]
-                         state]
+                         selected-mortgage :- Mortgage
+                         ui-event-chan]
   [:svg {:width 520 :height 300}
    [:rect {:x              0
            :y              0
            :width          500
            :height         300
            :fill           "#FFF"
-           :on-mouse-enter #(put! (:ui-event-chan state) {:type :selection-end})}]
+           :on-mouse-enter #(put! ui-event-chan {:type :selection-end})}]
    [:line {:x1           100 :y1 20
            :x2           100 :y2 280
            :stroke       "black"
@@ -206,11 +207,15 @@
    [:text {:x 90 :y 30 :text-anchor "end"} (format-number (int (apply max (map :value data-points))))]
 
    (for [[index point] (map-indexed vector data-points)]
-       ^{:key (str "rect-" index (point :value))} [draw-bar point index (apply max (map :value data-points)) state])
+     ^{:key (str "rect-" index (point :value))} [draw-bar
+                                                 point
+                                                 index
+                                                 (apply max (map :value data-points))
+                                                 (= (point :mortgage) selected-mortgage)
+                                                 ui-event-chan])
 
-   (when (:selected-mortgage state)
-     (let [point (first (filter #(= (:mortgage %)
-                                    (:selected-mortgage state))
+   (when selected-mortgage
+     (let [point (first (filter #(= (:mortgage %) selected-mortgage)
                                 data-points))
            index (.indexOf (to-array data-points) point)
            x (+ 110 (* index 30))]
@@ -228,7 +233,8 @@
    (for [m mortgages]
      {:mortgage m
       :value    (-> m total-price-breakdown :interest)})
-   state])
+   (state :selected-mortgage)
+   (state :ui-event-chan)])
 
 (sm/defn draw-monthly-payment [mortgages :- [Mortgage]
                                state :- UIState]
@@ -237,15 +243,18 @@
    (for [m mortgages]
      {:mortgage m
       :value    (full-monthly-payment-amount m)})
-   state])
+   (state :selected-mortgage)
+   (state :ui-event-chan)])
+
 
 (sm/defn draw-mortgage [m :- Mortgage
-                        state :- UIState]
+                        is-selected-mortgage :- s/Bool
+                        ui-event-chan]
   [:tr.mortgage
-   {:on-mouse-enter #(put! (:ui-event-chan state) {:type     :selection-start
-                                                   :mortgage m})
-    :on-mouse-leave #(put! (:ui-event-chan state) {:type :selection-end})
-    :class          (when (= m (:selected-mortgage state))
+   {:on-mouse-enter #(put! ui-event-chan {:type     :selection-start
+                                          :mortgage m})
+    :on-mouse-leave #(put! ui-event-chan {:type :selection-end})
+    :class          (when is-selected-mortgage
                       "selected")}
    [:td (:house-price m)]
    [:td (:apr m)]
@@ -275,9 +284,9 @@
         [:th "% Down"]
         [:th "Duration"]]
        (when (:selected-mortgage state)
-         [draw-mortgage (:selected-mortgage state) state])
+         [draw-mortgage (:selected-mortgage state) true (:ui-event-chan state)])
        (for [[index m] (map-indexed vector (:mortgages state))]
-         ^{:key (str "mortgage-" index)} [draw-mortgage m state])]]]))
+         ^{:key (str "mortgage-" index)} [draw-mortgage m (= m (:selected-mortgage state)) (:ui-event-chan state)])]]]))
 
 (def some-mortgages
   (apply concat
