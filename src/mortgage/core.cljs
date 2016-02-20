@@ -2,7 +2,6 @@
   (:require [reagent.core :as r]
             [schema.core :as s])
   (:require-macros [cljs.core.async.macros :refer [go go-loop]]
-                   [mortgage.macros :refer [console-time]]
                    [schema.core :as sm])
   (:use [cljs.core.async :only [chan <! >! put!]]))
 
@@ -250,7 +249,7 @@
   (go-loop []
     (let [state @ui-state
           msg (<! (:ui-event-chan state))]
-      (condp = (:type msg)
+      (case (:type msg)
         :selection-start (swap! ui-state assoc :selected-mortgage (:mortgage msg))
         :selection-end (swap! ui-state assoc :selected-mortgage nil))
       (recur))))
@@ -260,9 +259,6 @@
                       (js/document.getElementById "content"))
   (handle-ui-events state))
 
-
 (comment
   (simple-benchmark [] (doall (map get-payments some-mortgages)) 10)
-
-
   )

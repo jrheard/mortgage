@@ -16,7 +16,7 @@
   :target-path "target/%s"
   :clean-targets ^{:protect false} ["resources/public/js/compiled" "target"]
   :figwheel {:open-file-command "open-in-intellij"
-             :css-dirs ["resources/public/css"]}
+             :css-dirs          ["resources/public/css"]}
   :cljsbuild {:builds [{:id           "dev"
                         :source-paths ["src"]
                         :figwheel     {:on-jsload "mortgage.core/main"}
@@ -25,4 +25,8 @@
                                        :output-to            "resources/public/js/compiled/mortgage.js"
                                        :output-dir           "resources/public/js/compiled/out"
                                        :source-map-timestamp true}}
-                       ]})
+                       {:id           "min"
+                        :source-paths ["src"]
+                        :compiler     {:output-to     "resources/public/js/compiled/mortgage.js"
+                                       :optimizations :advanced
+                                       :pretty-print  false}}]})
