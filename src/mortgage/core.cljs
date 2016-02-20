@@ -2,9 +2,11 @@
   (:require [reagent.core :as r]
             [schema.core :as s])
   (:require-macros [cljs.core.async.macros :refer [go go-loop]]
+                   [mortgage.macros :refer [console-time]]
                    [schema.core :as sm])
   (:use [cljs.core.async :only [chan <! >! put!]]))
 
+;;;;;;;;;
 ;;; Mortgage math
 
 ; per https://smartasset.com/taxes/oregon-property-tax-calculator#7KnveUIptd
@@ -93,16 +95,7 @@
        vals
        (apply +)))
 
-(sm/defn total-price-breakdown :- {:principal       s/Num
-                                   :interest        s/Num
-                                   :monthly-payment s/Num}
-  [m :- Mortgage]
-  (let [payments (get-payments m)]
-    {:principal       (apply + (map :principal payments))
-     :interest        (apply + (map :interest payments))
-     :total           (total-mortgage-price m)
-     :monthly-payment (full-monthly-payment-amount m)}))
-
+;;;;;;;;
 ;;; UI
 
 (sm/defschema UIState {:mortgages         [Mortgage]
@@ -138,6 +131,7 @@
                          selected-mortgage :- Mortgage
                          ui-event-chan]
   [:svg {:width 520 :height 300}
+   ; Axes + labels
    [:rect {:x              0
            :y              0
            :width          500
@@ -156,6 +150,7 @@
    [:text {:x 70 :y 235 :transform "rotate(270 75 230)"} y-axis-label]
    [:text {:x 90 :y 30 :text-anchor "end"} (format-number (int (apply max (map :value data-points))))]
 
+   ; Bars
    (for [[index point] (map-indexed vector data-points)]
      ^{:key (str "rect-" index (point :value))} [draw-bar
                                                  point
@@ -182,7 +177,10 @@
    "Money Wasted On Interest"
    (for [m mortgages]
      {:mortgage m
-      :value    (-> m total-price-breakdown :interest)})
+      :value    (->> m
+                     get-payments
+                     (map :interest)
+                     (apply +))})
    (state :selected-mortgage)
    (state :ui-event-chan)])
 
@@ -195,7 +193,6 @@
       :value    (full-monthly-payment-amount m)})
    (state :selected-mortgage)
    (state :ui-event-chan)])
-
 
 (sm/defn draw-mortgage-table-row [m :- Mortgage
                                   is-selected-mortgage :- s/Bool
@@ -262,3 +259,10 @@
   (r/render-component [draw-state state]
                       (js/document.getElementById "content"))
   (handle-ui-events state))
+
+
+(comment
+  (simple-benchmark [] (doall (map get-payments some-mortgages)) 10)
+
+
+  )

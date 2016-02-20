@@ -309,3 +309,4 @@ archiving cursive cheatsheet here
 ; ctrl-w c - closes window (for use with :split, etc)
 
 
+TODO benchmark
