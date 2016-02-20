@@ -5,54 +5,6 @@
                    [schema.core :as sm])
   (:use [cljs.core.async :only [chan <! >! put!]]))
 
-; paredit
-; cmd+shift+j, cmd+shift+k - move right paren back/forth
-; cmd+ctrl+j, cmd+ctrl+k - move left paren back/forth
-; cmd-shift-9 wraps with ()
-; ctrl-S splices: removes a ()
-; cmd-shift-up and cmd-shift-down move a form forward and backward in its containing list, neat
-; alt-shift-s is split
-; cmd-ctrl-s is join (?! i hate this pair of keybinds)
-;
-; repl commands
-; cmd-shift-r: start repl
-; cmd-shift-l sends file to repl (equivalent of cpr in fireplace)
-; cmd-shift-p sends current form to repl (equivalent of cpp in fireplace)
-
-; documentation
-; cmd-p: show parameters this function takes
-; ctrl-j: show docstring
-;
-; assorted
-; cmd-alt-l: reformat code
-; shift-f6: rename
-;
-; navigation
-; cmd-f7: show usages
-; cmd-e: recent files - cursive docs say you can use this instead of tabs, we'll see about that
-; cmd-shift-o: search for file
-; cmd-f12: display list of symbols defined in current file, begin typing to search
-; cmd-b: jump to declaration (siiiiiick - works for builtin clojure functions too)
-; alt-f3: toggle anonymous bookmark
-; f3: add bookmark with mnemonic (use numbers)
-; ctrl-<number>: jump to numbered mnemonic bookmark
-; cmd-f3: view all bookmarks
-; cmd-up: open navigation bar, interact w/ it with arrow keys; consider using instead of project browser
-;
-; testing (unsupported for cljs?)
-; cmd-t: run tests in current ns
-; cmd-shift-t: run test under caret
-;
-; debugging
-; alt-f8: toggle breakpoint
-; ctrl-d: run program in debug mode
-; f8: step over
-; f7: step into
-; shif-f8:  step out
-;
-; one last vim command to memorize:
-; ctrl-w c - closes window (for use with :split, etc)
-
 ;;; Mortgage math
 
 ; per https://smartasset.com/taxes/oregon-property-tax-calculator#7KnveUIptd
@@ -163,17 +115,11 @@
 (sm/defn format-number [n :- s/Num]
   (str "$" (.toLocaleString n)))
 
-;; HELLO seriously everything below here is awful, don't look at it
-;; i was trying to debug a performance issue and changed the code until i'd resolved it and understood
-;; what the issue was, and at this point it's not worth the time to unfuck the code because i'm done with this project
-;; i promise my code is not usually this bad, don't look at the stuff below
-
 (sm/defn draw-bar [point :- DataPoint
                    offset :- s/Int
                    max-value :- s/Int
                    is-selected-mortgage :- s/Bool
-                   ui-event-chan
-                   ]
+                   ui-event-chan]
   (js/console.log "drawing bar")
   (let [x (+ 110 (* offset 30))
         height (* 250
@@ -183,8 +129,7 @@
                 :width          30
                 :transform      (str "rotate(180 " x " " 280 ")")
                 :height         height
-                :class          (when is-selected-mortgage
-                                  "selected")
+                :class          (when is-selected-mortgage "selected")
                 :on-mouse-enter #(put! ui-event-chan {:type     :selection-start
                                                       :mortgage (:mortgage point)})}]))
 
@@ -252,15 +197,14 @@
    (state :ui-event-chan)])
 
 
-(sm/defn draw-mortgage [m :- Mortgage
-                        is-selected-mortgage :- s/Bool
-                        ui-event-chan]
+(sm/defn draw-mortgage-table-row [m :- Mortgage
+                                  is-selected-mortgage :- s/Bool
+                                  ui-event-chan]
   [:tr.mortgage
    {:on-mouse-enter #(put! ui-event-chan {:type     :selection-start
                                           :mortgage m})
     :on-mouse-leave #(put! ui-event-chan {:type :selection-end})
-    :class          (when is-selected-mortgage
-                      "selected")}
+    :class          (when is-selected-mortgage "selected")}
    [:td (:house-price m)]
    [:td (:apr m)]
    [:td (:down-payment-percentage m)]
@@ -289,9 +233,9 @@
         [:th "% Down"]
         [:th "Duration"]]
        (when (:selected-mortgage state)
-         [draw-mortgage (:selected-mortgage state) true (:ui-event-chan state)])
+         [draw-mortgage-table-row (:selected-mortgage state) true (:ui-event-chan state)])
        (for [[index m] (map-indexed vector (:mortgages state))]
-         ^{:key (str "mortgage-" index)} [draw-mortgage m (= m (:selected-mortgage state)) (:ui-event-chan state)])]]]))
+         ^{:key (str "mortgage-" index)} [draw-mortgage-table-row m (= m (:selected-mortgage state)) (:ui-event-chan state)])]]]))
 
 (def some-mortgages
   (apply concat

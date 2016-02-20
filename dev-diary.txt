@@ -252,3 +252,60 @@ but if you had a vector that used to look like [draw-bar 123] and still looks li
 and that is how to reason about reagent/performance.
 i think.
 
+deltas graph deltas
+
+=====
+
+2/20/16
+
+archiving cursive cheatsheet here
+
+; paredit
+; cmd+shift+j, cmd+shift+k - move right paren back/forth
+; cmd+ctrl+j, cmd+ctrl+k - move left paren back/forth
+; cmd-shift-9 wraps with ()
+; ctrl-S splices: removes a ()
+; cmd-shift-up and cmd-shift-down move a form forward and backward in its containing list, neat
+; alt-shift-s is split
+; cmd-ctrl-s is join (?! i hate this pair of keybinds)
+;
+; repl commands
+; cmd-shift-r: start repl
+; cmd-shift-l sends file to repl (equivalent of cpr in fireplace)
+; cmd-shift-p sends current form to repl (equivalent of cpp in fireplace)
+
+; documentation
+; cmd-p: show parameters this function takes
+; ctrl-j: show docstring
+;
+; assorted
+; cmd-alt-l: reformat code
+; shift-f6: rename
+;
+; navigation
+; cmd-f7: show usages
+; cmd-e: recent files - cursive docs say you can use this instead of tabs, we'll see about that
+; cmd-shift-o: search for file
+; cmd-f12: display list of symbols defined in current file, begin typing to search
+; cmd-b: jump to declaration (siiiiiick - works for builtin clojure functions too)
+; alt-f3: toggle anonymous bookmark
+; f3: add bookmark with mnemonic (use numbers)
+; ctrl-<number>: jump to numbered mnemonic bookmark
+; cmd-f3: view all bookmarks
+; cmd-up: open navigation bar, interact w/ it with arrow keys; consider using instead of project browser
+;
+; testing (unsupported for cljs?)
+; cmd-t: run tests in current ns
+; cmd-shift-t: run test under caret
+;
+; debugging
+; alt-f8: toggle breakpoint
+; ctrl-d: run program in debug mode
+; f8: step over
+; f7: step into
+; shif-f8:  step out
+;
+; one last vim command to memorize:
+; ctrl-w c - closes window (for use with :split, etc)
+
+
