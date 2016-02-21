@@ -342,3 +342,20 @@ am i doing something super wrong? as far as i can tell, my UI should be pretty s
 from what i can tell, the batching.js line is a call to (run-queues)
 i'll try using checkout deps (for my first time :D) to add some printlns to this area of reagent so i
   can see where the time is going, just wanted to check to see if other people had seen this sort of behavior
+
+added some instrumentation, i see like 12 calls to do-render, each of which takes between 0.1ms and 1.86ms,
+  which doesn't account for the 110ms-140ms that the forceUpdate call takes; will continue to dig
+aha! found http://jasonrudolph.com/resources/201209-cljs-performance-profiling.png (661KB)
+  , which suggests adding console.profile() / console.profileEnd() calls
+which gives me output like https://www.evernote.com/shard/s11/sh/bf71e155-af2b-47a3-b1cf-aced40ca39fd/ccc14883cdd4f1d2
+  , which suggests that one of my math-heavy functions is taking a nontrivial amount of time; i'll try memoizing it, it's pure
+wow this profiling tool is useful
+ha - perf is much smoother now, memoizing did the trick!
+in unminified mode i'm seeing perf of 37-60ms
+per hover/unhover event
+minified mode ended up at 25ms-55ms, neato
+
+end slack paste
+
+takeaway: console.profile() and console.profileEnd() are incredible incredible profiling tools, use 'em all the time
+TODO: use 'em on the cljs-sandbox box animation demo
