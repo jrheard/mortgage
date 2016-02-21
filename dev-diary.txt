@@ -359,3 +359,9 @@ end slack paste
 
 takeaway: console.profile() and console.profileEnd() are incredible incredible profiling tools, use 'em all the time
 TODO: use 'em on the cljs-sandbox box animation demo
+
+reagent animations: http://www.mattgreer.org/articles/scrolling-animations-with-reagent/
+also has an fps thing in that repo
+https://github.com/city41/reagent-scroll-demo/blob/master/src/cljs/scroll_demo/fps.cljs
+
+TODO learn more about requestAnimationFrame
