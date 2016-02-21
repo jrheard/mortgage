@@ -310,3 +310,35 @@ archiving cursive cheatsheet here
 
 
 TODO benchmark
+
+notes from slack:
+
+
+i've been experiencing performance problems with this little demo for a while: http://jrheard.com/mortgage/
+i'd originally written my code incorrectly, such that i had a component function called `draw-bar` and had
+  invocations of it look like `[draw-bar mortgage selected-mortgage something]`; and so whenever the app's
+  selected mortgage changed, every single bar would redraw, because `selected-mortgage` was different, which makes sense
+so changing it to look like `[draw-bar mortgage is-selected-mortgage etc]` made the app correctly only rerender
+  the necessary bars whenever the selected mortgage (controlled by mousing over a bar) had changed
+the source for this is at https://github.com/jrheard/mortgage/blob/master/src/mortgage/core.cljs btw
+but so in unminified mode, i was still experiencing very bad performance problems - if you scrolled over a
+  bunch of bars, the UI would lag behind the user's input very noticeably
+like really really badly
+it's less noticeable in minified mode, but still takes about 60ms whenever you mouse over a bar
+i'm a rookie at using the chrome timeline tool, but i have some screenshots that maybe someone will know how
+  to interpret :simple_smile:
+here's what a single mouse-over-a-bar event looks like from the unminified version:
+  https://www.evernote.com/shard/s11/sh/dd5958c8-a38a-414e-8f63-6632820094a3/a696fda3187fec27
+there are a ton of other function calls i couldn't also show on the screen, but it appears to bottom out in
+  reagent's batching.cljs, in an absolute ton of Minor GC events in an "Animation Frame Fired"
+you can see at the top of that screenshot that this is responsible for like 90% of the interaction's 108ms
+  rendering time (if i'm interpreting all this correctly)
+here's a screenshot of the minified version (which is currently the live one i linked earlier) -
+  https://www.evernote.com/shard/s11/sh/14085ab6-ec40-41c7-a80c-b52217822993/c301e06670e28fef
+rendering just takes 63ms this time, but still there' sa lot of time spent in Animation Frame Fired,
+  and still a noticeable amount of Minor GC events
+am i doing something super wrong? as far as i can tell, my UI should be pretty simple - just an <svg> with
+  some <rect>s and <text>s
+from what i can tell, the batching.js line is a call to (run-queues)
+i'll try using checkout deps (for my first time :D) to add some printlns to this area of reagent so i
+  can see where the time is going, just wanted to check to see if other people had seen this sort of behavior
