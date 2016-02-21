@@ -69,7 +69,7 @@
      (* (:num-years m)
         12)))
 
-(sm/defn get-payments :- [MonthlyPayment]
+(sm/defn -get-payments :- [MonthlyPayment]
   [m :- Mortgage]
   (loop [principal (get-loan-amount m)
          result []]
@@ -85,6 +85,8 @@
         (recur (- principal (:principal payment))
                (conj result payment)))
       result)))
+
+(def get-payments (memoize -get-payments))
 
 (sm/defn full-monthly-payment-amount :- s/Num
   [m :- Mortgage]
@@ -258,7 +260,3 @@
   (r/render-component [draw-state state]
                       (js/document.getElementById "content"))
   (handle-ui-events state))
-
-(comment
-  (simple-benchmark [] (doall (map get-payments some-mortgages)) 10)
-  )
